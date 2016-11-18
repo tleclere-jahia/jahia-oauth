@@ -1,0 +1,15 @@
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+<joant = 'http://www.jahia.org/jahia/joa/nt/1.0'>
+<joamix = 'http://www.jahia.org/jahia/joa/mix/1.0'>
+
+[joamix:oauthConnectorView] > jmix:siteComponent, jmix:studioOnly mixin
+
+[joamix:oauthConnectorSettings] > jmix:autoPublish mixin
+
+[joant:jahiaOAuth] > jmix:autoPublish
+ + * (joamix:oauthConnectorSettings) = joamix:oauthConnectorSettings
+
+[joamix:oauthButtonConnector] > jmix:droppableContent mixin
+
+[joant:oauthConnectorSiteSettings] > jnt:content, jmix:siteComponent, jmix:studioOnly
