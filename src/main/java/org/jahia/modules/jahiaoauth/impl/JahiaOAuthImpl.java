@@ -12,8 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author dgaillard
@@ -52,14 +51,18 @@ public class JahiaOAuthImpl implements JahiaOAuth {
         OAuth20Service service = oAuth20ServiceMap.get("LinkedInApi20");
         OAuth2AccessToken accessToken = service.getAccessToken(token);
 
-        OAuthRequest request = new OAuthRequest(Verb.GET, String.format("https://api.linkedin.com/v1/people/~:(%s)", "id"), service);
-        request.addHeader("x-li-format", "json");
-//        request.addHeader("Accept-Language", "ru-RU");
-        service.signRequest(accessToken, request);
-        Response response = request.send();
+        List<String> properties = new ArrayList<>(Arrays.asList("id", "firstName", "lastName", "positions", "specialties", "public-profile-url", "summary", "industry", "location", "headline"));
 
-        logger.info(Integer.toString(response.getCode()));
-        logger.info(response.getBody());
+        for (String property : properties) {
+            OAuthRequest request = new OAuthRequest(Verb.GET, String.format("https://api.linkedin.com/v1/people/~:(%s)", property), service);
+            request.addHeader("x-li-format", "json");
+            service.signRequest(accessToken, request);
+            Response response = request.send();
+
+            logger.info("*********** RESULT for property: " + property + " ***********");
+            logger.info(Integer.toString(response.getCode()));
+            logger.info(response.getBody());
+        }
     }
 
     public void setoAuthBaseApiMap(Map<String, BaseApi<? extends OAuth20Service>> oAuthBaseApiMap) {
