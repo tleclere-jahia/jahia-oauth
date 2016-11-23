@@ -10,5 +10,5 @@ public interface JahiaOAuth {
 
     String getAuthorizationUrl(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope) throws Exception;
 
-    void storeTokenAndExecuteMapper(String token) throws IOException;
+    void storeTokenAndExecuteMapper(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String token) throws Exception;
 }

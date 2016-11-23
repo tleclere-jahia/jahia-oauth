@@ -29,26 +29,8 @@ public class JahiaOAuthImpl implements JahiaOAuth {
         return service.getAuthorizationUrl();
     }
 
-    private OAuth20Service getOrCreateOAuth20Service(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope) throws Exception {
-        if (oAuth20ServiceMap != null && oAuth20ServiceMap.containsKey(serviceName)) {
-            return oAuth20ServiceMap.get(serviceName);
-        }
-
-        if (oAuth20ServiceMap == null) {
-            oAuth20ServiceMap = new HashMap<>();
-        }
-
-        OAuth20Service oAuth20Service = new ServiceBuilder().apiKey(apiKey).apiSecret(apiSecret)
-                .callback(callbackUrl)
-                .scope(scope)
-                .build(oAuthBaseApiMap.get(serviceName));
-        oAuth20ServiceMap.put(serviceName, oAuth20Service);
-
-        return oAuth20Service;
-    }
-
-    public void storeTokenAndExecuteMapper(String token) throws IOException {
-        OAuth20Service service = oAuth20ServiceMap.get("LinkedInApi20");
+    public void storeTokenAndExecuteMapper(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String token) throws Exception {
+        OAuth20Service service = getOrCreateOAuth20Service(serviceName, apiKey, apiSecret, callbackUrl, scope);
         OAuth2AccessToken accessToken = service.getAccessToken(token);
 
         List<String> properties = new ArrayList<>(Arrays.asList("id", "firstName", "lastName", "positions", "specialties", "public-profile-url", "summary", "industry", "location", "headline"));
@@ -63,6 +45,28 @@ public class JahiaOAuthImpl implements JahiaOAuth {
             logger.info(Integer.toString(response.getCode()));
             logger.info(response.getBody());
         }
+    }
+
+    private OAuth20Service getOrCreateOAuth20Service(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope) throws Exception {
+        if (oAuth20ServiceMap != null && oAuth20ServiceMap.containsKey(serviceName)) {
+            return oAuth20ServiceMap.get(serviceName);
+        }
+
+        if (oAuth20ServiceMap == null) {
+            oAuth20ServiceMap = new HashMap<>();
+        }
+
+        ServiceBuilder serviceBuilder = new ServiceBuilder().apiKey(apiKey).apiSecret(apiSecret).callback(callbackUrl);
+
+        if (scope != null) {
+            serviceBuilder.scope(scope);
+        }
+
+        OAuth20Service oAuth20Service = serviceBuilder.build(oAuthBaseApiMap.get(serviceName));
+
+        oAuth20ServiceMap.put(serviceName, oAuth20Service);
+
+        return oAuth20Service;
     }
 
     public void setoAuthBaseApiMap(Map<String, BaseApi<? extends OAuth20Service>> oAuthBaseApiMap) {

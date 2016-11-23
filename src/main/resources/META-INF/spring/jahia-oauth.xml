@@ -22,10 +22,4 @@
         <property name="requiredPermission" value="canSetupJahiaOAuth"/>
         <property name="jahiaOAuth" ref="jahiaOAuth"/>
     </bean>
-
-    <bean class="org.jahia.modules.jahiaoauth.action.OAuth20Callback">
-        <property name="name" value="oAuth20CallbackAction"/>
-        <property name="requireAuthenticatedUser" value="false"/>
-        <property name="jahiaOAuth" ref="jahiaOAuth"/>
-    </bean>
 </beans>
