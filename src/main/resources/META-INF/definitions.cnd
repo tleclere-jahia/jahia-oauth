@@ -6,6 +6,7 @@
 [joamix:oauthConnectorView] > jmix:siteComponent, jmix:studioOnly mixin
 
 [joamix:oauthConnectorSettings] > jmix:autoPublish mixin
+ + mappers (joant:mappers) = joant:mappers
 
 [joant:jahiaOAuth] > jmix:autoPublish
  + * (joamix:oauthConnectorSettings) = joamix:oauthConnectorSettings
@@ -13,3 +14,10 @@
 [joamix:oauthButtonConnector] > jmix:droppableContent mixin
 
 [joant:oauthConnectorSiteSettings] > jnt:content, jmix:siteComponent, jmix:studioOnly
+
+[joamix:oauthMapperView] > jmix:siteComponent, jmix:studioOnly mixin
+
+[joant:mappers] > jmix:autoPublish
+ + * (joamix:oauthMapperSettings) = joamix:oauthMapperSettings
+
+[joamix:oauthMapperSettings] > jmix:autoPublish mixin

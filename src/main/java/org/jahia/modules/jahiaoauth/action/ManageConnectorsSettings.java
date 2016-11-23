@@ -84,6 +84,9 @@ public class ManageConnectorsSettings extends Action {
             node = parentNode.getNode(nodeName);
         } else {
             node = parentNode.addNode(nodeName, primaryNodeType);
+            if (node.isNodeType("joamix:oauthConnectorSettings")) {
+                node.addNode("mappers", "joant:mappers");
+            }
             parentNode.getSession().save();
         }
         return node;

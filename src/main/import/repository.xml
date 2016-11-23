@@ -17,11 +17,11 @@
                                 jcr:mixinTypes="jmix:useUILocale"
                                 jcr:primaryType="jnt:template">
                         <oauth-connector-site-settings j:applyOn="jnt:virtualsite"
-                                         j:defaultTemplate="false"
-                                         j:hiddenTemplate="false"
-                                         j:view="oauthSettings"
-                                         j:requiredPermissionNames="canSetupJahiaOAuth"
-                                         jcr:primaryType="jnt:contentTemplate">
+                                              j:defaultTemplate="false"
+                                              j:hiddenTemplate="false"
+                                              j:requiredPermissionNames="canSetupJahiaOAuth"
+                                              j:view="oauthSettings"
+                                              jcr:primaryType="jnt:contentTemplate">
                             <j:translation_en jcr:language="en"
                                     jcr:mixinTypes="mix:title"
                                     jcr:primaryType="jnt:translation"

@@ -1,5 +1,12 @@
-angular.module('JahiaOAuth', ['ngMaterial'])
-    .config(function($mdThemingProvider, $mdToastProvider) {
+angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute'])
+    .config(function($mdThemingProvider, $mdToastProvider, $routeProvider) {
+        $routeProvider
+            .when('/connectors', {
+                templateUrl: 'connectors.html'
+            }).when('/mappers/:connectorNodeName', {
+                templateUrl: 'mappers.html'
+            }).otherwise('/connectors');
+
         $mdThemingProvider.theme('jahiaOAuth')
             .primaryPalette('blue-grey')
             .accentPalette('blue')
@@ -8,7 +15,7 @@ angular.module('JahiaOAuth', ['ngMaterial'])
         $mdThemingProvider.setDefaultTheme('jahiaOAuth');
 
 
-        // TODO make it work
+        // TODO make it works
         $mdToastProvider.addPreset('errorToast', {
             argOption: 'textContent',
             methods: ['textContent', 'content', 'action', 'highlightAction', 'highlightClass', 'theme', 'parent' ],
@@ -16,11 +23,11 @@ angular.module('JahiaOAuth', ['ngMaterial'])
                 return {
                     template:
                     '<md-toast md-theme="{{ toast.theme }}" ng-class="{\'md-capsule\': toast.capsule}">' +
-                    '  <div class="md-toast-content">' +
-                    '    <span class="md-toast-text" role="alert" aria-relevant="all" aria-atomic="true">' +
-                    '      {{ toast.content }}' +
-                    '    </span>' +
-                    '  </div>' +
+                    '   <div class="md-toast-content">' +
+                    '       <span class="md-toast-text" role="alert" aria-relevant="all" aria-atomic="true">' +
+                    '           {{ toast.content }}' +
+                    '       </span>' +
+                    '   </div>' +
                     '</md-toast>',
                     theme: $mdTheming.defaultTheme(),
                     toastClass: 'md-warn',
@@ -31,48 +38,16 @@ angular.module('JahiaOAuth', ['ngMaterial'])
                 }
             }]
         });
-        // .addPreset('simple', {
-        //     argOption: 'textContent',
-        //     methods: ['textContent', 'content', 'action', 'highlightAction', 'highlightClass', 'theme', 'parent' ],
-        //     options: /* @ngInject */ ["$mdToast", "$mdTheming", function($mdToast, $mdTheming) {
-        //         return {
-        //             template:
-        //             '<md-toast md-theme="{{ toast.theme }}" ng-class="{\'md-capsule\': toast.capsule}">' +
-        //             '  <div class="md-toast-content">' +
-        //             '    <span class="md-toast-text" role="alert" aria-relevant="all" aria-atomic="true">' +
-        //             '      {{ toast.content }}' +
-        //             '    </span>' +
-        //             '    <md-button class="md-action" ng-if="toast.action" ng-click="toast.resolve()" ' +
-        //             '        ng-class="highlightClasses">' +
-        //             '      {{ toast.action }}' +
-        //             '    </md-button>' +
-        //             '  </div>' +
-        //             '</md-toast>',
-        //             controller: /* @ngInject */ ["$scope", function mdToastCtrl($scope) {
-        //                 var self = this;
-        //
-        //                 if (self.highlightAction) {
-        //                     $scope.highlightClasses = [
-        //                         'md-highlight',
-        //                         self.highlightClass
-        //                     ]
-        //                 }
-        //
-        //                 $scope.$watch(function() { return activeToastContent; }, function() {
-        //                     self.content = activeToastContent;
-        //                 });
-        //
-        //                 this.resolve = function() {
-        //                     $mdToast.hide( ACTION_RESOLVE );
-        //                 };
-        //             }],
-        //             theme: $mdTheming.defaultTheme(),
-        //             controllerAs: 'toast',
-        //             bindToController: true
-        //         };
-        //     }]
-        // });
     })
+    .controller('headerController', ['$scope', '$location', function ($scope, $location) {
+        $scope.isMapperView = function() {
+            return $location.path() != '/connectors';
+        };
+
+        $scope.goToConnectors = function() {
+            $location.path('/connectors');
+        }
+    }])
     .service('settingsService', ['$http', function($http) {
         this.getConnectorData = function(nodeName, properties) {
             var propertiesAsString = '';
@@ -88,5 +63,13 @@ angular.module('JahiaOAuth', ['ngMaterial'])
                 url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageConnectorsSettingsAction.do',
                 params: data
             });
+        };
+
+        this.toggleMapper = function(data) {
+            return $http({
+                method: 'POST',
+                url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageMappersAction.do',
+                params: data
+            })
         };
     }]);

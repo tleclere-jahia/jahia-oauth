@@ -25,6 +25,7 @@
                                                     jahia-oauth/vendor/angular-aria.js,
                                                     jahia-oauth/vendor/angular-messages.js,
                                                     jahia-oauth/vendor/angular-material.js,
+                                                    jahia-oauth/vendor/angular-route.js,
                                                     jahia-oauth/app.js"/>
 
 <template:addResources>
@@ -38,8 +39,11 @@
 
 <div ng-app="JahiaOAuth" layout="column" layout-fill>
     <div layout="row">
-        <md-toolbar>
+        <md-toolbar ng-controller="headerController">
             <div class="md-toolbar-tools">
+                <md-button class="md-icon-button" ng-show="isMapperView()" ng-click="goToConnectors()">
+                    <md-icon>keyboard_arrow_left</md-icon>
+                </md-button>
                 <h2>
                     <span>Jahia OAuth Settings</span>
                 </h2>
@@ -47,10 +51,46 @@
         </md-toolbar>
     </div>
 
-    <div>
+    <div ng-view></div>
+
+    <script type="text/ng-template" id="connectors.html">
         <jcr:sql var="oauthConnectorsViews" sql="SELECT * FROM [joamix:oauthConnectorView]"/>
+        <c:set var="siteHasConnector" value="false"/>
         <c:forEach items="${oauthConnectorsViews.nodes}" var="connectorView">
-            <template:module node="${connectorView}"/>
+            <c:set var="currentModuleName" value="${fn:substringAfter(connectorView.path, '/modules/')}"/>
+            <c:set var="currentModuleName" value="${fn:substringBefore(currentModuleName, '/')}"/>
+            <c:if test="${functions:contains(renderContext.site.installedModules, currentModuleName)}">
+                <c:set var="siteHasConnector" value="true"/>
+                <template:module node="${connectorView}" />
+            </c:if>
         </c:forEach>
-    </div>
+        <c:if test="${not siteHasConnector}">
+            <md-card>
+                <md-card-content>
+                    No connector found, please deploy a connector on your site!
+                </md-card-content>
+            </md-card>
+        </c:if>
+    </script>
+
+    <script type="text/ng-template" id="mappers.html">
+        <jcr:sql var="oauthMappersViews" sql="SELECT * FROM [joamix:oauthMapperView]"/>
+        <c:set var="siteHasMapper" value="false"/>
+        <c:forEach items="${oauthMappersViews.nodes}" var="mapperView">
+            <c:set var="currentModuleName" value="${fn:substringAfter(mapperView.path, '/modules/')}"/>
+            <c:set var="currentModuleName" value="${fn:substringBefore(currentModuleName, '/')}"/>
+            <c:if test="${functions:contains(renderContext.site.installedModules, currentModuleName)}">
+                <c:set var="siteHasMapper" value="true"/>
+                <template:module node="${mapperView}"/>
+            </c:if>
+        </c:forEach>
+        <c:if test="${not siteHasMapper}">
+            <md-card>
+                <md-card-content>
+                    No mapper found, please deploy a mapper on your site!
+                </md-card-content>
+            </md-card>
+        </c:if>
+    </script>
 </div>
+
