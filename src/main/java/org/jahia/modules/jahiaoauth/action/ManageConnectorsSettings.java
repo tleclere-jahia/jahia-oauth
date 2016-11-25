@@ -3,9 +3,9 @@ package org.jahia.modules.jahiaoauth.action;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
+import org.jahia.modules.jahiaoauth.service.Constants;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuth;
-import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.*;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
@@ -26,11 +26,6 @@ import java.util.Map;
 public class ManageConnectorsSettings extends Action {
     private static final Logger logger = LoggerFactory.getLogger(ManageConnectorsSettings.class);
 
-    private static String METHOD_GET = "GET";
-    private static String JAHIA_OAUTH_NODE_TYPE = "joant:jahiaOAuth";
-    private static String PROPERTY_NODE_NAME = "nodeName";
-    private static String PROPERTY_NODE_TYPE = "nodeType";
-    private static String PROPERTIES = "properties";
     private JahiaOAuth jahiaOAuth;
 
     @Override
@@ -38,39 +33,63 @@ public class ManageConnectorsSettings extends Action {
                                   JCRSessionWrapper session, Map<String, List<String>> parameters,
                                   URLResolver urlResolver) throws Exception {
 
-        JCRNodeWrapper jahiaOAuthNode = getOrCreateNode(renderContext.getSite(), jahiaOAuth.JAHIA_OAUTH, JAHIA_OAUTH_NODE_TYPE);
+        JCRNodeWrapper jahiaOAuthNode = getOrCreateNode(renderContext.getSite(), Constants.JAHIA_OAUTH_NODE_NAME, Constants.JAHIA_OAUTH_NODE_TYPE);
         JSONObject response = new JSONObject();
-        if (req.getMethod().equals(METHOD_GET)) {
-            if (!parameters.containsKey(PROPERTY_NODE_NAME) || !parameters.containsKey(PROPERTIES) || parameters.get(PROPERTIES).isEmpty()) {
+        // Get registered data
+        if (req.getMethod().equals(Constants.METHOD_GET)) {
+            if (!parameters.containsKey(Constants.PROPERTY_NODE_NAME)
+                    || !parameters.containsKey(Constants.PROPERTIES)
+                    || parameters.get(Constants.PROPERTIES).isEmpty()) {
                 response.put("error", "required properties are missing in the request");
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            String nodeName = parameters.get(PROPERTY_NODE_NAME).get(0);
+            String nodeName = parameters.get(Constants.PROPERTY_NODE_NAME).get(0);
             if (!jahiaOAuthNode.hasNode(nodeName)) {
                 return new ActionResult(HttpServletResponse.SC_OK);
             }
 
             JCRNodeWrapper connectorSettingsNode = jahiaOAuthNode.getNode(nodeName);
-            for (String property : parameters.get(PROPERTIES)) {
+            for (String property : parameters.get(Constants.PROPERTIES)) {
                 if (connectorSettingsNode.hasProperty(property)) {
-                    response.put(property, connectorSettingsNode.getPropertyAsString(property));
+                    if (!property.equals(Constants.PROPERTY_IS_ACTIVATE)) {
+                        response.put(property, connectorSettingsNode.getPropertyAsString(property));
+                    } else {
+                        response.put(property, connectorSettingsNode.getProperty(property).getBoolean());
+                    }
                 }
             }
-        } else {
-            if (!parameters.containsKey(PROPERTY_NODE_NAME) || !parameters.containsKey(PROPERTIES)
-                    || parameters.get(PROPERTIES).isEmpty() || !parameters.containsKey(PROPERTY_NODE_TYPE)) {
+        }
+        // Register or update data
+        else {
+            if (!parameters.containsKey(Constants.PROPERTY_NODE_NAME)
+                    || !parameters.containsKey(Constants.PROPERTY_NODE_TYPE)
+                    || !parameters.containsKey(Constants.PROPERTIES)
+                    || parameters.get(Constants.PROPERTIES).isEmpty()) {
                 response.put("error", "required properties are missing in the request");
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            String nodeName = parameters.get(PROPERTY_NODE_NAME).get(0);
-            String nodeType = parameters.get(PROPERTY_NODE_TYPE).get(0);
+            HashMap<String, Object> properties = new ObjectMapper().readValue(parameters.get(Constants.PROPERTIES).get(0), HashMap.class);
+            if (!properties.containsKey(Constants.PROPERTY_API_KEY)
+                    || !properties.containsKey(Constants.PROPERTY_API_SECRET)
+                    || !properties.containsKey(Constants.PROPERTY_CALLBACK_URL)
+                    || !properties.containsKey(Constants.PROPERTY_IS_ACTIVATE)) {
+                response.put("error", "required properties are missing in the request");
+                return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
+            }
+
+            String nodeName = parameters.get(Constants.PROPERTY_NODE_NAME).get(0);
+            String nodeType = parameters.get(Constants.PROPERTY_NODE_TYPE).get(0);
             JCRNodeWrapper connectorSettingsNode = getOrCreateNode(jahiaOAuthNode, nodeName, nodeType);
 
-            HashMap<String, String> properties = new ObjectMapper().readValue(parameters.get(PROPERTIES).get(0), HashMap.class);
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                connectorSettingsNode.setProperty(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                if (entry.getValue() instanceof String) {
+                    connectorSettingsNode.setProperty(entry.getKey(), (String) entry.getValue());
+                }
+                if (entry.getValue() instanceof Boolean) {
+                    connectorSettingsNode.setProperty(entry.getKey(), (Boolean) entry.getValue());
+                }
             }
             connectorSettingsNode.getSession().save();
         }
@@ -84,8 +103,8 @@ public class ManageConnectorsSettings extends Action {
             node = parentNode.getNode(nodeName);
         } else {
             node = parentNode.addNode(nodeName, primaryNodeType);
-            if (node.isNodeType("joamix:oauthConnectorSettings")) {
-                node.addNode("mappers", "joant:mappers");
+            if (node.isNodeType(Constants.OAUTH_CONNECTOR_SETTINGS_NODE_TYPE)) {
+                node.addNode(Constants.MAPPERS_NODE_NAME, Constants.MAPPERS_NODE_TYPE);
             }
             parentNode.getSession().save();
         }

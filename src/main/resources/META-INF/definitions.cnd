@@ -6,6 +6,12 @@
 [joamix:oauthConnectorView] > jmix:siteComponent, jmix:studioOnly mixin
 
 [joamix:oauthConnectorSettings] > jmix:autoPublish mixin
+ - isActivate (boolean) nofulltext indexed=no
+ - apiKey (string) nofulltext indexed=no hidden
+ - apiSecret (string) nofulltext indexed=no hidden
+ - callbackUrl (string) nofulltext indexed=no hidden
+ - state (string) nofulltext indexed=no
+ - scope (string) nofulltext indexed=no
  + mappers (joant:mappers) = joant:mappers
 
 [joant:jahiaOAuth] > jmix:autoPublish
