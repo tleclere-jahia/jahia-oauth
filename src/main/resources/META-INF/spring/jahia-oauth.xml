@@ -26,4 +26,10 @@
         <property name="requiredPermission" value="canSetupJahiaOAuth"/>
         <property name="jahiaOAuth" ref="jahiaOAuth"/>
     </bean>
+
+    <bean class="org.jahia.modules.jahiaoauth.action.ManageMappers">
+        <property name="name" value="manageMappersAction"/>
+        <property name="requiredPermission" value="canSetupJahiaOAuth"/>
+        <property name="jahiaOAuth" ref="jahiaOAuth"/>
+    </bean>
 </beans>

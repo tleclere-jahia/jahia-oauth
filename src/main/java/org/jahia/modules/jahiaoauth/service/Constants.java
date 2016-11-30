@@ -16,9 +16,17 @@ public class Constants {
     public static final String PROPERTY_STATE = "state";
     public static final String PROPERTY_NODE_NAME = "nodeName";
     public static final String PROPERTY_NODE_TYPE = "nodeType";
+    public static final String PROPERTY_MAPPING = "mapping";
 
     public static final String METHOD_GET = "GET";
+    public static final String API = "api";
     public static final String AUTHORIZATION_URL = "authorizationUrl";
+    public static final String SERVICE_NAME = "serviceName";
+    public static final String PROTECTED_RESOURCE_URL = "protectedResourceUrl";
+    public static final String URL_CAN_TAKE_VALUE = "urlCanTakeValue";
+    public static final String CAN_BE_REQUESTED = "canBeRequested";
+    public static final String PROPERTY_TO_REQUEST = "propertyToRequest";
+    public static final String MAPPER_KEY = "mapperKey";
 
     public static final String JAHIA_OAUTH_NODE_TYPE = "joant:jahiaOAuth";
     public static final String OAUTH_CONNECTOR_SETTINGS_NODE_TYPE = "joamix:oauthConnectorSettings";

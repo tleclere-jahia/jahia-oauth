@@ -3,7 +3,7 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
         $routeProvider
             .when('/connectors', {
                 templateUrl: 'connectors.html'
-            }).when('/mappers/:connectorNodeName', {
+            }).when('/mappers/:connectorServiceName', {
                 templateUrl: 'mappers.html'
             }).otherwise('/connectors');
 
@@ -67,7 +67,35 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
             });
         };
 
-        this.toggleMapper = function(data) {
+        this.getConnectorProperties = function(data) {
+            data.action = 'getConnectorProperties';
+            return $http({
+                method: 'POST',
+                url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageMappersAction.do',
+                params: data
+            })
+        };
+
+        this.getMapperProperties = function(data) {
+            data.action = 'getMapperProperties';
+            return $http({
+                method: 'POST',
+                url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageMappersAction.do',
+                params: data
+            })
+        };
+
+        this.getMapperMapping = function(data) {
+            data.action = 'getMapperMapping';
+            return $http({
+                method: 'POST',
+                url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageMappersAction.do',
+                params: data
+            })
+        };
+
+        this.setMapperMapping = function(data) {
+            data.action = 'setMapperMapping';
             return $http({
                 method: 'POST',
                 url: jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageMappersAction.do',

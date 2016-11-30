@@ -8,7 +8,10 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.commons.lang.StringUtils;
+import org.jahia.modules.jahiaoauth.service.Constants;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuth;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,22 +25,21 @@ public class JahiaOAuthImpl implements JahiaOAuth {
 
     private Map<String, OAuth20Service> oAuth20ServiceMap;
     private Map<String, Map<String, Object>> oAuthBaseApiMap;
-//    private Map<String, BaseApi<? extends OAuth20Service>> oAuthBaseApiMap;
+    private Map<String, Map<String, Object>> oAuthMapperPropertiesMap;
 
-    public String getAuthorizationUrl(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope) throws Exception {
-        OAuth20Service service = getOrCreateOAuth20Service(serviceName, apiKey, apiSecret, callbackUrl, scope);
+    public String getAuthorizationUrl(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String state) throws Exception {
+        OAuth20Service service = getOrCreateOAuth20Service(serviceName, apiKey, apiSecret, callbackUrl, scope, state);
 
         return service.getAuthorizationUrl();
     }
 
-    public void storeTokenAndExecuteMapper(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String token) throws Exception {
-        OAuth20Service service = getOrCreateOAuth20Service(serviceName, apiKey, apiSecret, callbackUrl, scope);
+    public void storeTokenAndExecuteMapper(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String state, String token) throws Exception {
+        OAuth20Service service = getOrCreateOAuth20Service(serviceName, apiKey, apiSecret, callbackUrl, scope, state);
         OAuth2AccessToken accessToken = service.getAccessToken(token);
 
-        HashMap<String, Map<String, Object>> properties = (HashMap<String, Map<String, Object>>) oAuthBaseApiMap.get(serviceName).get("properties");
-        String protectedResourceUrl = (String) oAuthBaseApiMap.get(serviceName).get("protectedResourceUrl");
-        String urlCanTakeValue = (String) oAuthBaseApiMap.get(serviceName).get("urlCanTakeValue");
-        if (urlCanTakeValue.equals("true")) {
+        HashMap<String, Map<String, Object>> properties = (HashMap<String, Map<String, Object>>) oAuthBaseApiMap.get(serviceName).get(Constants.PROPERTIES);
+        String protectedResourceUrl = (String) oAuthBaseApiMap.get(serviceName).get(Constants.PROTECTED_RESOURCE_URL);
+        if ((boolean) oAuthBaseApiMap.get(serviceName).get(Constants.URL_CAN_TAKE_VALUE)) {
 
             StringBuilder propertiesAsString = new StringBuilder();
             boolean asPrevious = false;
@@ -46,11 +48,11 @@ public class JahiaOAuthImpl implements JahiaOAuth {
                     propertiesAsString.append(",");
                 }
 
-                if (entry.getValue().get("canBeRequested").equals("true")) {
+                if ((boolean) entry.getValue().get(Constants.CAN_BE_REQUESTED)) {
                     propertiesAsString.append(entry.getKey());
                     asPrevious = true;
                 } else {
-                    String propertyToRequest = (String) entry.getValue().get("propertyToRequest");
+                    String propertyToRequest = (String) entry.getValue().get(Constants.PROPERTY_TO_REQUEST);
                     if (!StringUtils.contains(propertiesAsString.toString(), propertyToRequest)) {
                         propertiesAsString.append(propertyToRequest);
                         asPrevious = true;
@@ -71,7 +73,7 @@ public class JahiaOAuthImpl implements JahiaOAuth {
         logger.info(response.getBody());
     }
 
-    private OAuth20Service getOrCreateOAuth20Service(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope) throws Exception {
+    private OAuth20Service getOrCreateOAuth20Service(String serviceName, String apiKey, String apiSecret, String callbackUrl, String scope, String state) throws Exception {
         if (oAuth20ServiceMap != null && oAuth20ServiceMap.containsKey(serviceName)) {
             return oAuth20ServiceMap.get(serviceName);
         }
@@ -86,7 +88,11 @@ public class JahiaOAuthImpl implements JahiaOAuth {
             serviceBuilder.scope(scope);
         }
 
-        OAuth20Service oAuth20Service = serviceBuilder.build((BaseApi<? extends OAuth20Service>) oAuthBaseApiMap.get(serviceName).get("api"));
+        if (state != null) {
+            serviceBuilder.state(state);
+        }
+
+        OAuth20Service oAuth20Service = serviceBuilder.build((BaseApi<? extends OAuth20Service>) oAuthBaseApiMap.get(serviceName).get(Constants.API));
 
         oAuth20ServiceMap.put(serviceName, oAuth20Service);
 
@@ -99,7 +105,35 @@ public class JahiaOAuthImpl implements JahiaOAuth {
         }
     }
 
+    public void addDataToOAuthMapperPropertiesMap(Map<String, Map<String, Object>> mapperProperties, String mapperKey) {
+        if (oAuthMapperPropertiesMap == null) {
+            oAuthMapperPropertiesMap = new HashMap<>();
+        }
+
+        if (!oAuthMapperPropertiesMap.containsKey(mapperKey)) {
+            oAuthMapperPropertiesMap.put(mapperKey, new HashMap<String, Object>());
+        }
+
+        oAuthMapperPropertiesMap.get(mapperKey).put(Constants.PROPERTIES, mapperProperties);
+    }
+
     public void setoAuthBaseApiMap(Map<String, Map<String, Object>> oAuthBaseApiMap) {
         this.oAuthBaseApiMap = oAuthBaseApiMap;
+    }
+
+    public JSONObject getConnectorProperties(String serviceName) throws JSONException {
+        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthBaseApiMap.get(serviceName).get(Constants.PROPERTIES);
+        JSONObject jsonObject = new JSONObject(map);
+        return jsonObject;
+    }
+
+    public JSONObject getMapperProperties(String mapperKey) throws JSONException {
+        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthMapperPropertiesMap.get(mapperKey).get(Constants.PROPERTIES);
+        JSONObject jsonObject = new JSONObject(map);
+        return jsonObject;
+    }
+
+    public String resolveConnectorNodeName(String serviceName) {
+        return (String) oAuthBaseApiMap.get(serviceName).get("settingsNodeName");
     }
 }

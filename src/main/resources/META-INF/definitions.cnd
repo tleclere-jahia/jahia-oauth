@@ -10,8 +10,8 @@
  - apiKey (string) nofulltext indexed=no hidden
  - apiSecret (string) nofulltext indexed=no hidden
  - callbackUrl (string) nofulltext indexed=no hidden
- - state (string) nofulltext indexed=no
- - scope (string) nofulltext indexed=no
+ - state (string) nofulltext indexed=no hidden
+ - scope (string) nofulltext indexed=no hidden
  + mappers (joant:mappers) = joant:mappers
 
 [joant:jahiaOAuth] > jmix:autoPublish
@@ -27,3 +27,5 @@
  + * (joamix:oauthMapperSettings) = joamix:oauthMapperSettings
 
 [joamix:oauthMapperSettings] > jmix:autoPublish mixin
+ - isActivate (boolean) nofulltext indexed=no
+ - mapping (string) nofulltext indexed=no hidden
