@@ -18,6 +18,9 @@
  + * (joamix:oauthConnectorSettings) = joamix:oauthConnectorSettings
 
 [joamix:oauthButtonConnector] > jmix:droppableContent mixin
+ - cssClass (string) nofulltext indexed=no
+ - htmlId (string) nofulltext indexed=no
+ - tagType (string, choicelist[resourceBundle]) = 'button' autocreated nofulltext indexed=no < 'button', 'a'
 
 [joant:oauthConnectorSiteSettings] > jnt:content, jmix:siteComponent, jmix:studioOnly
 
