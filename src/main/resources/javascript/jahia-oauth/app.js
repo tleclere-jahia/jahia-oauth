@@ -56,7 +56,7 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
             angular.forEach(properties, function(property) {
                 propertiesAsString += '&properties=' + property;
             });
-            return $http.get(jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageConnectorsSettingsAction.do?nodeName=' + nodeName + propertiesAsString);
+            return $http.get(jahiaOAuthContext.baseEdit + jahiaOAuthContext.sitePath + '.manageConnectorsSettingsAction.do?serviceName=' + nodeName + propertiesAsString);
         };
 
         this.setConnectorData = function(data) {

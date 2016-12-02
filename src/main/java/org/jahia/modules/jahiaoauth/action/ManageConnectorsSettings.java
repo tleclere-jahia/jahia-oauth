@@ -37,14 +37,14 @@ public class ManageConnectorsSettings extends Action {
         JSONObject response = new JSONObject();
         // Get registered data
         if (req.getMethod().equals(Constants.METHOD_GET)) {
-            if (!parameters.containsKey(Constants.PROPERTY_NODE_NAME)
+            if (!parameters.containsKey(Constants.SERVICE_NAME)
                     || !parameters.containsKey(Constants.PROPERTIES)
                     || parameters.get(Constants.PROPERTIES).isEmpty()) {
                 response.put("error", "required properties are missing in the request");
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            String nodeName = parameters.get(Constants.PROPERTY_NODE_NAME).get(0);
+            String nodeName = parameters.get(Constants.SERVICE_NAME).get(0);
             if (!jahiaOAuthNode.hasNode(nodeName)) {
                 return new ActionResult(HttpServletResponse.SC_OK);
             }
@@ -62,8 +62,8 @@ public class ManageConnectorsSettings extends Action {
         }
         // Register or update data
         else {
-            if (!parameters.containsKey(Constants.PROPERTY_NODE_NAME)
-                    || !parameters.containsKey(Constants.PROPERTY_NODE_TYPE)
+            if (!parameters.containsKey(Constants.SERVICE_NAME)
+                    || !parameters.containsKey(Constants.NODE_TYPE)
                     || !parameters.containsKey(Constants.PROPERTIES)
                     || parameters.get(Constants.PROPERTIES).isEmpty()) {
                 response.put("error", "required properties are missing in the request");
@@ -79,8 +79,8 @@ public class ManageConnectorsSettings extends Action {
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            String nodeName = parameters.get(Constants.PROPERTY_NODE_NAME).get(0);
-            String nodeType = parameters.get(Constants.PROPERTY_NODE_TYPE).get(0);
+            String nodeName = parameters.get(Constants.SERVICE_NAME).get(0);
+            String nodeType = parameters.get(Constants.NODE_TYPE).get(0);
             JCRNodeWrapper connectorSettingsNode = getOrCreateNode(jahiaOAuthNode, nodeName, nodeType);
 
             for (Map.Entry<String, Object> entry : properties.entrySet()) {

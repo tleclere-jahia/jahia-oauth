@@ -6,7 +6,7 @@
                            http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
     <bean id="jahiaOAuth" class="org.jahia.modules.jahiaoauth.impl.JahiaOAuthImpl">
-        <property name="oAuthBaseApiMap">
+        <property name="oAuthBase20ApiMap">
             <map>
                 <entry key="LinkedInApi20">
                     <map>
@@ -15,8 +15,164 @@
                         </entry>
                     </map>
                 </entry>
+                <entry key="VkontakteApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.VkontakteApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="HHApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.HHApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="GitHubApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.GitHubApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="MailruApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.MailruApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="GeniusApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.GeniusApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="Foursquare2Api">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.Foursquare2Api"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="RenrenApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.RenrenApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="KaixinApi20">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.KaixinApi20"/>
+                        </entry>
+                    </map>
+                </entry>
+                <!--<entry key="SalesforceApi">-->
+                    <!--<map>-->
+                        <!--<entry key="api">-->
+                            <!--<bean class="com.github.scribejava.apis.SalesforceApi"/>-->
+                        <!--</entry>-->
+                    <!--</map>-->
+                <!--</entry>-->
+                <entry key="ViadeoApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.ViadeoApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="GoogleApi20">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.GoogleApi20"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="PinterestApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.PinterestApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="SinaWeiboApi20">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.SinaWeiboApi20"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="OdnoklassnikiApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.OdnoklassnikiApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="FacebookApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.FacebookApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="TutByApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.TutByApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="LiveApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.LiveApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="DoktornaraboteApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.DoktornaraboteApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="NaverApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.NaverApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="MisfitApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.MisfitApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="StackExchangeApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.StackExchangeApi"/>
+                        </entry>
+                    </map>
+                </entry>
+                <entry key="ImgurApi">
+                    <map>
+                        <entry key="api">
+                            <bean class="com.github.scribejava.apis.ImgurApi"/>
+                        </entry>
+                    </map>
+                </entry>
             </map>
         </property>
+        <property name="templateManagerService" ref="JahiaTemplateManagerService"/>
+        <property name="jcrTemplate" ref="jcrTemplate"/>
     </bean>
 
     <osgi:service id="JahiaOAuthServiceOsgi" ref="jahiaOAuth" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuth"/>
