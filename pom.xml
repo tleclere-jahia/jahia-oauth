@@ -91,6 +91,12 @@
             <artifactId>scribejava-apis</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.gemini.blueprint</groupId>
+            <artifactId>gemini-blueprint-core</artifactId>
+            <version>1.0.2.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
