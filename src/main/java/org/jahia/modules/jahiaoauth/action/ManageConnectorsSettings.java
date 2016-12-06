@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.modules.jahiaoauth.service.Constants;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuth;
 import org.jahia.services.content.*;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
@@ -25,8 +24,6 @@ import java.util.Map;
  */
 public class ManageConnectorsSettings extends Action {
     private static final Logger logger = LoggerFactory.getLogger(ManageConnectorsSettings.class);
-
-    private JahiaOAuth jahiaOAuth;
 
     @Override
     public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource,
@@ -109,9 +106,5 @@ public class ManageConnectorsSettings extends Action {
             parentNode.getSession().save();
         }
         return node;
-    }
-
-    public void setJahiaOAuth(JahiaOAuth jahiaOAuth) {
-        this.jahiaOAuth = jahiaOAuth;
     }
 }

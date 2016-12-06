@@ -171,8 +171,7 @@
                 </entry>
             </map>
         </property>
-        <property name="templateManagerService" ref="JahiaTemplateManagerService"/>
-        <property name="jcrTemplate" ref="jcrTemplate"/>
+        <property name="jahiaOAuthCacheManager" ref="jahiaOAuthCacheManager"/>
     </bean>
 
     <osgi:service id="JahiaOAuthServiceOsgi" ref="jahiaOAuth" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuth"/>
@@ -180,12 +179,15 @@
     <bean class="org.jahia.modules.jahiaoauth.action.ManageConnectorsSettings">
         <property name="name" value="manageConnectorsSettingsAction"/>
         <property name="requiredPermission" value="canSetupJahiaOAuth"/>
-        <property name="jahiaOAuth" ref="jahiaOAuth"/>
     </bean>
 
     <bean class="org.jahia.modules.jahiaoauth.action.ManageMappers">
         <property name="name" value="manageMappersAction"/>
         <property name="requiredPermission" value="canSetupJahiaOAuth"/>
         <property name="jahiaOAuth" ref="jahiaOAuth"/>
+    </bean>
+
+    <bean id="jahiaOAuthCacheManager" class="org.jahia.modules.jahiaoauth.cache.JahiaOAuthCacheManager" init-method="start" destroy-method="stop">
+        <property name="ehCacheProvider" ref="ehCacheProvider"/>
     </bean>
 </beans>

@@ -36,30 +36,30 @@ public class ManageMappers extends Action {
         if (action.equals("getConnectorProperties")) {
             response = jahiaOAuth.getConnectorProperties(parameters.get(Constants.SERVICE_NAME).get(0));
         } else if (action.equals("getMapperProperties")) {
-            response = jahiaOAuth.getMapperProperties(parameters.get(Constants.MAPPER_KEY).get(0));
+            response = jahiaOAuth.getMapperProperties(parameters.get(Constants.MAPPER_SERVICE_NAME).get(0));
         } else if (action.equals("getMapperMapping")) {
-            if (!parameters.containsKey(Constants.MAPPER_KEY)
+            if (!parameters.containsKey(Constants.MAPPER_SERVICE_NAME)
                     || !parameters.containsKey(Constants.SERVICE_NAME)) {
                 response.put("error", "required properties are missing in the request");
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
             String serviceName = parameters.get(Constants.SERVICE_NAME).get(0);
-            String mapperKey = parameters.get(Constants.MAPPER_KEY).get(0);
+            String mapperServiceName = parameters.get(Constants.MAPPER_SERVICE_NAME).get(0);
 
             JCRNodeWrapper mappersNode = renderContext.getSite().getNode(Constants.JAHIA_OAUTH_NODE_NAME).getNode(serviceName).getNode(Constants.MAPPERS_NODE_NAME);
 
-            if (!mappersNode.hasNode(mapperKey)) {
+            if (!mappersNode.hasNode(mapperServiceName)) {
                 return new ActionResult(HttpServletResponse.SC_OK, null, response);
             }
 
-            JCRNodeWrapper mapperNode = mappersNode.getNode(mapperKey);
+            JCRNodeWrapper mapperNode = mappersNode.getNode(mapperServiceName);
             JSONArray jsonArrayMapping = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
             response.put(Constants.PROPERTY_IS_ACTIVATE, mapperNode.getProperty(Constants.PROPERTY_IS_ACTIVATE).getBoolean());
             response.put(Constants.PROPERTY_MAPPING, jsonArrayMapping);
 
         } else if (action.equals("setMapperMapping")) {
-            if (!parameters.containsKey(Constants.MAPPER_KEY)
+            if (!parameters.containsKey(Constants.MAPPER_SERVICE_NAME)
                     || !parameters.containsKey(Constants.PROPERTY_MAPPING)
                     || !parameters.containsKey(Constants.PROPERTY_IS_ACTIVATE)
                     || !parameters.containsKey(Constants.SERVICE_NAME)
@@ -71,16 +71,16 @@ public class ManageMappers extends Action {
             boolean isActivate = Boolean.parseBoolean(parameters.get(Constants.PROPERTY_IS_ACTIVATE).get(0));
             List<String> mapping = parameters.get(Constants.PROPERTY_MAPPING);
             String serviceName = parameters.get(Constants.SERVICE_NAME).get(0);
-            String mapperKey = parameters.get(Constants.MAPPER_KEY).get(0);
+            String mapperServiceName = parameters.get(Constants.MAPPER_SERVICE_NAME).get(0);
 
             JCRNodeWrapper mappersNode = renderContext.getSite().getNode(Constants.JAHIA_OAUTH_NODE_NAME).getNode(serviceName).getNode(Constants.MAPPERS_NODE_NAME);
 
             JCRNodeWrapper currentMapperNode;
-            if (!mappersNode.hasNode(mapperKey)) {
-                currentMapperNode = mappersNode.addNode(mapperKey, parameters.get(Constants.NODE_TYPE).get(0));
+            if (!mappersNode.hasNode(mapperServiceName)) {
+                currentMapperNode = mappersNode.addNode(mapperServiceName, parameters.get(Constants.NODE_TYPE).get(0));
                 mappersNode.getSession().save();
             } else {
-                currentMapperNode = mappersNode.getNode(mapperKey);
+                currentMapperNode = mappersNode.getNode(mapperServiceName);
             }
 
             currentMapperNode.setProperty(Constants.PROPERTY_IS_ACTIVATE, isActivate);

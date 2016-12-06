@@ -9,14 +9,12 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.gemini.blueprint.context.BundleContextAware;
+import org.jahia.modules.jahiaoauth.cache.JahiaOAuthCacheManager;
 import org.jahia.modules.jahiaoauth.service.Constants;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuth;
 import org.jahia.modules.jahiaoauth.service.Mapper;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRTemplate;
-import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,23 +33,23 @@ import java.util.*;
 public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
     private static final Logger logger = LoggerFactory.getLogger(JahiaOAuthImpl.class);
 
-    private JCRTemplate jcrTemplate;
     private BundleContext bundleContext;
-    private JahiaTemplateManagerService templateManagerService;
-    private Map<String, OAuth20Service> oAuth20ServiceMap;
     private Map<String, Map<String, Object>> oAuthBase20ApiMap;
     private Map<String, Map<String, Object>> oAuthMapperPropertiesMap;
+    private JahiaOAuthCacheManager jahiaOAuthCacheManager;
 
-    public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String serviceName) throws RepositoryException {
+    @Override
+    public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String serviceName, String sessionId) throws RepositoryException {
         JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(serviceName);
-        OAuth20Service service = getOrCreateOAuth20Service(connectorNode, serviceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, serviceName, sessionId);
 
         return service.getAuthorizationUrl();
     }
 
-    public void extractTokenAndExecuteMappers(JCRSessionWrapper session, JCRNodeWrapper jahiaOAuthNode, String serviceName, String token) throws Exception {
+    @Override
+    public void extractTokenAndExecuteMappers(JCRNodeWrapper jahiaOAuthNode, String serviceName, String token, String state) throws Exception {
         JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(serviceName);
-        OAuth20Service service = getOrCreateOAuth20Service(connectorNode, serviceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, serviceName, state);
         OAuth2AccessToken accessToken = service.getAccessToken(token);
 
         // Request all the properties available right now
@@ -112,23 +110,22 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                 JCRNodeWrapper mapperNode = (JCRNodeWrapper) mappersNi.nextNode();
                 // make sure mappers is activate
                 if (mapperNode.getProperty(Constants.PROPERTY_IS_ACTIVATE).getBoolean()) {
-                    HashMap<String, List<String>> mapperResult = new HashMap<>();
+                    HashMap<String, Object> mapperResult = new HashMap<>();
                     // add token to result
-                    mapperResult.put(Constants.TOKEN, Collections.singletonList(token));
+                    mapperResult.put(Constants.TOKEN, token);
 
                     JSONArray jsonArray = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
 
                     for (int i = 0 ; i < jsonArray.length() ; i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        List<String> list = new ArrayList<>();
-                        list.add((String) propertiesResult.get(jsonObject.getString(Constants.CONNECTOR)));
-                        mapperResult.put(jsonObject.getString(Constants.MAPPER), list);
+                        mapperResult.put(jsonObject.getString(Constants.MAPPER), propertiesResult.get(jsonObject.getString(Constants.CONNECTOR)));
                     }
 
+                    jahiaOAuthCacheManager.cacheMapperResults(oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + "_" + state, mapperResult);
                     String filter = "(" + Constants.MAPPER_SERVICE_NAME + "=" + oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + ")";
-                    ServiceReference serviceReference = bundleContext.getServiceReference(Mapper.class.getName());
-                    Mapper mapper = (Mapper) bundleContext.getService(serviceReference);
-                    mapper.executeMapper();
+                    ServiceReference[] serviceReference = bundleContext.getServiceReferences(Mapper.class.getName(), filter);
+                    Mapper mapper = (Mapper) bundleContext.getService(serviceReference[0]);
+                    mapper.executeMapper(mapperResult);
                 }
             }
         } else {
@@ -175,35 +172,21 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
         }
     }
 
-    private OAuth20Service getOrCreateOAuth20Service(JCRNodeWrapper connectorNode, String serviceName) throws RepositoryException {
-        if (oAuth20ServiceMap != null && oAuth20ServiceMap.containsKey(serviceName)) {
-            return oAuth20ServiceMap.get(serviceName);
-        }
-
-        if (oAuth20ServiceMap == null) {
-            oAuth20ServiceMap = new HashMap<>();
-        }
-
+    private OAuth20Service createOAuth20Service(JCRNodeWrapper connectorNode, String serviceName, String state) throws RepositoryException {
         ServiceBuilder serviceBuilder = new ServiceBuilder()
                 .apiKey(connectorNode.getPropertyAsString(Constants.PROPERTY_API_KEY))
                 .apiSecret(connectorNode.getPropertyAsString(Constants.PROPERTY_API_SECRET))
-                .callback(connectorNode.getPropertyAsString(Constants.PROPERTY_CALLBACK_URL));
+                .callback(connectorNode.getPropertyAsString(Constants.PROPERTY_CALLBACK_URL))
+                .state(state);
 
         if (connectorNode.hasProperty(Constants.PROPERTY_SCOPE)) {
             serviceBuilder.scope(connectorNode.getPropertyAsString(Constants.PROPERTY_SCOPE));
         }
 
-        if (connectorNode.hasProperty(Constants.PROPERTY_STATE)) {
-            serviceBuilder.state(connectorNode.getPropertyAsString(Constants.PROPERTY_STATE));
-        }
-
-        OAuth20Service oAuth20Service = serviceBuilder.build((BaseApi<? extends OAuth20Service>) oAuthBase20ApiMap.get(serviceName).get(Constants.API));
-
-        oAuth20ServiceMap.put(serviceName, oAuth20Service);
-
-        return oAuth20Service;
+        return serviceBuilder.build((BaseApi<? extends OAuth20Service>) oAuthBase20ApiMap.get(serviceName).get(Constants.API));
     }
 
+    @Override
     public void addDataToOAuthBaseApiMap(Map<String, Map<String, Object>> dataToLoad, String serviceName) {
         if (oAuthBase20ApiMap.containsKey(serviceName)) {
             for (Map.Entry<String, Object> entry : dataToLoad.get(serviceName).entrySet()) {
@@ -212,49 +195,49 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
         }
     }
 
-    public void addDataToOAuthMapperPropertiesMap(Map<String, Map<String, Object>> mapperProperties, String mapperKey, String mapperServiceName) {
+    @Override
+    public void addDataToOAuthMapperPropertiesMap(Map<String, Map<String, Object>> mapperProperties, String mapperServiceName) {
         if (oAuthMapperPropertiesMap == null) {
             oAuthMapperPropertiesMap = new HashMap<>();
         }
 
-        if (!oAuthMapperPropertiesMap.containsKey(mapperKey)) {
-            oAuthMapperPropertiesMap.put(mapperKey, new HashMap<String, Object>());
+        if (!oAuthMapperPropertiesMap.containsKey(mapperServiceName)) {
+            oAuthMapperPropertiesMap.put(mapperServiceName, new HashMap<String, Object>());
         }
 
-        oAuthMapperPropertiesMap.get(mapperKey).put(Constants.PROPERTIES, mapperProperties);
-        oAuthMapperPropertiesMap.get(mapperKey).put(Constants.MAPPER_SERVICE_NAME, mapperServiceName);
+        oAuthMapperPropertiesMap.get(mapperServiceName).put(Constants.PROPERTIES, mapperProperties);
+        oAuthMapperPropertiesMap.get(mapperServiceName).put(Constants.MAPPER_SERVICE_NAME, mapperServiceName);
     }
 
+    @Override
     public JSONObject getConnectorProperties(String serviceName) throws JSONException {
         HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthBase20ApiMap.get(serviceName).get(Constants.PROPERTIES);
         JSONObject jsonObject = new JSONObject(map);
         return jsonObject;
     }
 
-    public JSONObject getMapperProperties(String mapperKey) throws JSONException {
-        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthMapperPropertiesMap.get(mapperKey).get(Constants.PROPERTIES);
+    @Override
+    public JSONObject getMapperProperties(String mapperServiceName) throws JSONException {
+        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthMapperPropertiesMap.get(mapperServiceName).get(Constants.PROPERTIES);
         JSONObject jsonObject = new JSONObject(map);
         return jsonObject;
-    }
-
-    public String resolveConnectorNodeName(String serviceName) {
-        return (String) oAuthBase20ApiMap.get(serviceName).get(Constants.SETTINGS_NODE_NAME);
     }
 
     public void setoAuthBase20ApiMap(Map<String, Map<String, Object>> oAuthBase20ApiMap) {
         this.oAuthBase20ApiMap = oAuthBase20ApiMap;
     }
 
-    public void setTemplateManagerService(JahiaTemplateManagerService templateManagerService) {
-        this.templateManagerService = templateManagerService;
-    }
-
-    public void setJcrTemplate(JCRTemplate jcrTemplate) {
-        this.jcrTemplate = jcrTemplate;
-    }
-
     @Override
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public void setJahiaOAuthCacheManager(JahiaOAuthCacheManager jahiaOAuthCacheManager) {
+        this.jahiaOAuthCacheManager = jahiaOAuthCacheManager;
+    }
+
+    @Override
+    public HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId) {
+        return jahiaOAuthCacheManager.getMapperResultsCacheEntry(mapperServiceName + "_" + sessionId);
     }
 }

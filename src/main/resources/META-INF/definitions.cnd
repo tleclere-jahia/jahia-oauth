@@ -1,34 +1,35 @@
-<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <jmix = 'http://www.jahia.org/jahia/mix/1.0'>
-<joant = 'http://www.jahia.org/jahia/joa/nt/1.0'>
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <joamix = 'http://www.jahia.org/jahia/joa/mix/1.0'>
+<joant = 'http://www.jahia.org/jahia/joa/nt/1.0'>
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
 
 [joamix:oauthConnectorView] > jmix:siteComponent, jmix:studioOnly mixin
 
 [joamix:oauthConnectorSettings] > jmix:autoPublish mixin
- - isActivate (boolean) nofulltext indexed=no
- - apiKey (string) nofulltext indexed=no hidden
- - apiSecret (string) nofulltext indexed=no hidden
- - callbackUrl (string) nofulltext indexed=no hidden
- - state (string) nofulltext indexed=no hidden
- - scope (string) nofulltext indexed=no hidden
+ - isActivate (boolean) indexed=no nofulltext
+ - apiKey (string) hidden indexed=no nofulltext
+ - apiSecret (string) hidden indexed=no nofulltext
+ - callbackUrl (string) hidden indexed=no nofulltext
+ - scope (string) hidden indexed=no nofulltext
  + mappers (joant:mappers) = joant:mappers
 
-[joant:jahiaOAuth] > jmix:autoPublish
+[joant:jahiaOAuth] > jmix:autoPublish, mix:referenceable
  + * (joamix:oauthConnectorSettings) = joamix:oauthConnectorSettings
 
 [joamix:oauthButtonConnector] > jmix:droppableContent mixin
- - cssClass (string) nofulltext indexed=no
- - htmlId (string) nofulltext indexed=no
- - tagType (string, choicelist[resourceBundle]) = 'button' autocreated nofulltext indexed=no < 'button', 'a'
+ - cssClass (string) indexed=no nofulltext
+ - htmlId (string) indexed=no nofulltext
+ - tagType (string, choicelist[resourceBundle]) = 'button' autocreated indexed=no nofulltext < 'button', 'a'
 
 [joant:oauthConnectorSiteSettings] > jnt:content, jmix:siteComponent, jmix:studioOnly
 
 [joamix:oauthMapperView] > jmix:siteComponent, jmix:studioOnly mixin
 
-[joant:mappers] > jmix:autoPublish
+[joant:mappers] > jmix:autoPublish, mix:referenceable
  + * (joamix:oauthMapperSettings) = joamix:oauthMapperSettings
 
 [joamix:oauthMapperSettings] > jmix:autoPublish mixin
- - isActivate (boolean) nofulltext indexed=no
- - mapping (string) nofulltext indexed=no hidden
+ - isActivate (boolean) indexed=no nofulltext
+ - mapping (string) hidden indexed=no nofulltext
+
