@@ -124,8 +124,10 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                     jahiaOAuthCacheManager.cacheMapperResults(oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + "_" + state, mapperResult);
                     String filter = "(" + Constants.MAPPER_SERVICE_NAME + "=" + oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + ")";
                     ServiceReference[] serviceReference = bundleContext.getServiceReferences(Mapper.class.getName(), filter);
-                    Mapper mapper = (Mapper) bundleContext.getService(serviceReference[0]);
-                    mapper.executeMapper(mapperResult);
+                    if (serviceReference != null) {
+                        Mapper mapper = (Mapper) bundleContext.getService(serviceReference[0]);
+                        mapper.executeMapper(mapperResult);
+                    }
                 }
             }
         } else {
