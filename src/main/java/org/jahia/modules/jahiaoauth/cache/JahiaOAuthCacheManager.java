@@ -5,11 +5,13 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.jahia.services.cache.CacheHelper;
 import org.jahia.services.cache.ModuleClassLoaderAwareCacheEntry;
 import org.jahia.services.cache.ehcache.EhCacheProvider;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author dgaillard
@@ -56,6 +58,16 @@ public class JahiaOAuthCacheManager {
 
     public HashMap<String, Object> getMapperResultsCacheEntry(String cacheKey) {
         return (HashMap<String, Object>) CacheHelper.getObjectValue(userCache, cacheKey);
+    }
+
+    public void updateCacheEntry(String originalSessionId, String newSessionId) {
+        for (String key : (List<String>) userCache.getKeys()) {
+            if (StringUtils.endsWith(key, originalSessionId)) {
+                String newKey = StringUtils.substringBefore(key, originalSessionId) + newSessionId;
+                HashMap<String, Object> mapperResults = getMapperResultsCacheEntry(key);
+                cacheMapperResults(newKey, mapperResults);
+            }
+        }
     }
 
     public void setEhCacheProvider(EhCacheProvider ehCacheProvider) {

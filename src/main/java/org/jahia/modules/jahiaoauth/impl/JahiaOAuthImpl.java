@@ -240,4 +240,9 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
     public HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId) {
         return jahiaOAuthCacheManager.getMapperResultsCacheEntry(mapperServiceName + "_" + sessionId);
     }
+
+    @Override
+    public void updateCacheEntry(String originalSessionId, String newSessionId) {
+        jahiaOAuthCacheManager.updateCacheEntry(originalSessionId, newSessionId);
+    }
 }

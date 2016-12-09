@@ -25,4 +25,6 @@ public interface JahiaOAuth {
     JSONObject getMapperProperties(String mapperServiceName) throws JSONException;
 
     HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId);
+
+    void updateCacheEntry(String originalSessionId, String newSessionId);
 }
