@@ -62,8 +62,9 @@
     <description>This is the custom module (Jahia OAuth) for running on a Digital Experience Manager server.</description>
 
     <scm>
-        <connection>scm:dummy:uri</connection>
-        <developerConnection>scm:dummy:uri</developerConnection>
+        <connection>scm:git:git@github.com:Jahia/jahia-oauth.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/jahia-oauth.git</developerConnection>
+        <url>https://github.com/Jahia/jahia-oauth</url>
     </scm>
 
     <properties>
