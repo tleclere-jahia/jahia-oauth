@@ -45,8 +45,8 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -100,4 +100,23 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>jahia-maven-plugin</artifactId>
+                <groupId>org.jahia.server</groupId>
+                <executions>
+                    <execution>
+                        <id>i18n2js</id>
+                        <goals>
+                            <goal>javascript-dictionary</goal>
+                        </goals>
+                        <configuration>
+                            <dictionaryName>joai18n</dictionaryName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

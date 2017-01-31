@@ -20,12 +20,10 @@
                                               j:defaultTemplate="false"
                                               j:hiddenTemplate="false"
                                               j:requiredPermissionNames="canSetupJahiaOAuth"
+                                              j:titleKey="joant_oauthConnectorSiteSettings"
                                               j:view="oauthSettings"
+                                              jcr:mixinTypes="jmix:rbTitle"
                                               jcr:primaryType="jnt:contentTemplate">
-                            <j:translation_en jcr:language="en"
-                                    jcr:mixinTypes="mix:title"
-                                    jcr:primaryType="jnt:translation"
-                                    jcr:title="Jahia OAuth Settings"/>
                             <pagecontent jcr:primaryType="jnt:contentList">
                                 <oauthconnectorsitesettings jcr:primaryType="joant:oauthConnectorSiteSettings"/>
                             </pagecontent>

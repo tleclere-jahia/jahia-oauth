@@ -26,6 +26,7 @@
                                                     jahia-oauth/vendor/angular-messages.js,
                                                     jahia-oauth/vendor/angular-material.js,
                                                     jahia-oauth/vendor/angular-route.js,
+                                                    jahia-oauth/i18n.js,
                                                     jahia-oauth/app.js"/>
 
 <template:addResources>
@@ -45,7 +46,7 @@
                     <md-icon>keyboard_arrow_left</md-icon>
                 </md-button>
                 <h2>
-                    <span>Jahia OAuth Settings</span>
+                    <span message-key="joant_oauthConnectorSiteSettings"></span>
                 </h2>
             </div>
         </md-toolbar>
@@ -67,7 +68,7 @@
         <c:if test="${not siteHasConnector}">
             <md-card>
                 <md-card-content>
-                    No connector found, please deploy a connector on your site!
+                    <span message-key="joant_oauthConnectorSiteSettings.connector.notFound"></span>
                 </md-card-content>
             </md-card>
         </c:if>
@@ -87,7 +88,7 @@
         <c:if test="${not siteHasMapper}">
             <md-card>
                 <md-card-content>
-                    No mapper found, please deploy a mapper on your site!
+                    <span message-key="joant_oauthConnectorSiteSettings.mapper.notFound"></span>
                 </md-card-content>
             </md-card>
         </c:if>

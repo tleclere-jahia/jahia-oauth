@@ -19,26 +19,29 @@
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 <html lang="${fn:substring(renderContext.request.locale,0,2)}">
-<head>
-    <meta charset="UTF-8">
-    <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:description" inherited="true" var="description"/>
-    <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:createdBy" inherited="true" var="author"/>
-    <c:set var="keywords" value="${jcr:getKeywords(renderContext.mainResource.node, true)}"/>
-    <c:if test="${!empty description}"><meta name="description" content="${fn:escapeXml(description.string)}" /></c:if>
-    <c:if test="${!empty author}"><meta name="author" content="${fn:escapeXml(author.string)}" /></c:if>
-    <c:if test="${!empty keywords}"><meta name="keywords" content="${fn:escapeXml(keywords)}" /></c:if>
-    <title>${fn:escapeXml(renderContext.mainResource.node.displayableName)}</title>
+    <head>
+        <meta charset="UTF-8">
+        <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:description" inherited="true" var="description"/>
+        <jcr:nodeProperty node="${renderContext.mainResource.node}" name="jcr:createdBy" inherited="true" var="author"/>
+        <c:set var="keywords" value="${jcr:getKeywords(renderContext.mainResource.node, true)}"/>
+        <c:if test="${!empty description}"><meta name="description" content="${fn:escapeXml(description.string)}" /></c:if>
+        <c:if test="${!empty author}"><meta name="author" content="${fn:escapeXml(author.string)}" /></c:if>
+        <c:if test="${!empty keywords}"><meta name="keywords" content="${fn:escapeXml(keywords)}" /></c:if>
+        <title>${fn:escapeXml(renderContext.mainResource.node.displayableName)}</title>
+        <template:addResources type="javascript" resources="i18n/jahia-oauth-i18n_${currentResource.locale}.js" var="i18nJSFile"/>
+        <c:if test="${empty i18nJSFile}">
+            <template:addResources type="javascript" resources="i18n/jahia-oauth-i18n_en.js"/>
+        </c:if>
+    </head>
 
-</head>
+    <body>
 
-<body>
+    <div class=" clearfix">
+        <template:area path="pagecontent"/>
+    </div>
 
-<div class=" clearfix">
-    <template:area path="pagecontent"/>
-</div>
+    <template:addResources type="css" resources="jahia-oauth/vendor/fontRoboto.css"/>
+    <template:addResources type="css" resources="jahia-oauth/vendor/material-icons.css"/>
 
-<template:addResources type="css" resources="jahia-oauth/vendor/fontRoboto.css"/>
-<template:addResources type="css" resources="jahia-oauth/vendor/material-icons.css"/>
-
-</body>
+    </body>
 </html>

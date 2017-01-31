@@ -1,4 +1,4 @@
-angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'])
+angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages', 'i18n'])
     .config(function($mdThemingProvider, $mdToastProvider, $routeProvider) {
         $routeProvider
             .when('/connectors', {
@@ -41,7 +41,7 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
         //     }]
         // });
     })
-    .controller('headerController', ['$scope', '$location', function ($scope, $location) {
+    .controller('headerController', ['$scope', '$location', 'i18nService', function ($scope, $location, i18nService) {
         $scope.isMapperView = function() {
             return $location.path() != '/connectors';
         };
