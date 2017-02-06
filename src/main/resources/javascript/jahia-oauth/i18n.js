@@ -1,8 +1,8 @@
 angular.module('i18n', [])
     .service('i18nService', function () {
         this.message = function (key) {
-            if (joai18n && joai18n[key]) {
-                return joai18n[key];
+            if (jahiaOAuthContext.i18n && jahiaOAuthContext.i18n[key]) {
+                return jahiaOAuthContext.i18n[key];
             } else {
                 return "???" + key + "???";
             }
@@ -16,8 +16,8 @@ angular.module('i18n', [])
             };
 
             if(params){
-                if (joai18n && joai18n[key]) {
-                    return joai18n[key].replace(/\{(\w+)\}/g, replacer(params.split('|')));
+                if (jahiaOAuthContext.i18n && jahiaOAuthContext.i18n[key]) {
+                    return jahiaOAuthContext.i18n[key].replace(/\{(\w+)\}/g, replacer(params.split('|')));
                 } else {
                     return "???" + key + "???";
                 }

@@ -33,7 +33,8 @@
     <script>
         var jahiaOAuthContext = {
             baseEdit: '${url.context}${url.baseEdit}',
-            sitePath: '${renderContext.siteInfo.sitePath}'
+            sitePath: '${renderContext.siteInfo.sitePath}',
+            i18n: joai18n
         }
     </script>
 </template:addResources>
