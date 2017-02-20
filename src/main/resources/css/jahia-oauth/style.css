@@ -28,3 +28,11 @@ div[jahiatype=mainmodule], div[jahiatype=mainmodule] div.clearfix {
     bottom: 7px;
     opacity: 1;
 }
+
+md-toast.md-error-toast-theme .md-toast-content {
+        background-color: #F44336;
+}
+
+md-toast.md-success-toast-theme .md-toast-content {
+    background-color: #4CAF50;
+}

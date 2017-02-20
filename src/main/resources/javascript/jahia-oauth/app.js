@@ -7,39 +7,15 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
                 templateUrl: 'mappers.html'
             }).otherwise('/connectors');
 
+        $mdThemingProvider.theme('error-toast');
+        $mdThemingProvider.theme('success-toast');
+
         $mdThemingProvider.theme('jahiaOAuth')
             .primaryPalette('blue-grey')
             .accentPalette('blue')
             .warnPalette('red');
 
-        $mdThemingProvider.theme('errorToast')
-            .backgroundPalette('red');
-
         $mdThemingProvider.setDefaultTheme('jahiaOAuth');
-
-        // TODO make it works
-        // $mdToastProvider.addPreset('errorToast', {
-        //     argOption: 'textContent',
-        //     methods: ['textContent', 'content', 'action', 'highlightAction', 'highlightClass', 'theme', 'parent' ],
-        //     options: ["$mdToast", "$mdTheming", function($mdToast, $mdTheming) {
-        //         return {
-        //             template:
-        //             '<md-toast md-theme="{{ toast.theme }}" ng-class="{\'md-capsule\': toast.capsule}">' +
-        //             '   <div class="md-toast-content">' +
-        //             '       <span class="md-toast-text" role="alert" aria-relevant="all" aria-atomic="true">' +
-        //             '           {{ toast.content }}' +
-        //             '       </span>' +
-        //             '   </div>' +
-        //             '</md-toast>',
-        //             theme: $mdTheming.defaultTheme(),
-        //             toastClass: 'md-warn',
-        //             position: 'bottom right',
-        //             hideDelay: 6000,
-        //             controllerAs: 'toast',
-        //             bindToController: true
-        //         }
-        //     }]
-        // });
     })
     .controller('headerController', ['$scope', '$location', 'i18nService', function ($scope, $location, i18nService) {
         $scope.isMapperView = function() {
@@ -102,4 +78,23 @@ angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages'
                 params: data
             })
         };
+    }])
+    .service('helperService', ['$mdToast', function($mdToast) {
+        this.successToast = function(message) {
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent(message)
+                    .theme('success-toast')
+                    .position('bottom right')
+            );
+        };
+
+        this.errorToast = function(message) {
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent(message)
+                    .theme('error-toast')
+                    .position('bottom right')
+            );
+        }
     }]);
