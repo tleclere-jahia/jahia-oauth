@@ -9,6 +9,7 @@
 <%@ taglib prefix="query" uri="http://www.jahia.org/tags/queryLib" %>
 <%@ taglib prefix="utility" uri="http://www.jahia.org/tags/utilityLib" %>
 <%@ taglib prefix="s" uri="http://www.jahia.org/tags/search" %>
+<%@ taglib prefix="joauth" uri="http://www.jahia.org/tags/joauth" %>
 <%--@elvariable id="currentNode" type="org.jahia.services.content.JCRNodeWrapper"--%>
 <%--@elvariable id="out" type="java.io.PrintWriter"--%>
 <%--@elvariable id="script" type="org.jahia.services.render.scripting.Script"--%>
@@ -56,12 +57,10 @@
     <div ng-view></div>
 
     <script type="text/ng-template" id="connectors.html">
-        <jcr:sql var="oauthConnectorsViews" sql="SELECT * FROM [joamix:oauthConnectorView]"/>
+        <jcr:sql var="oauthConnectorsViews" sql="SELECT * FROM [joamix:oauthConnectorView] as connectorView WHERE ISDESCENDANTNODE(connectorView, '/modules')"/>
         <c:set var="siteHasConnector" value="false"/>
         <c:forEach items="${oauthConnectorsViews.nodes}" var="connectorView">
-            <c:set var="currentModuleName" value="${fn:substringAfter(connectorView.path, '/modules/')}"/>
-            <c:set var="currentModuleName" value="${fn:substringBefore(currentModuleName, '/')}"/>
-            <c:if test="${functions:contains(renderContext.site.installedModules, currentModuleName)}">
+            <c:if test="${joauth:isModuleActiveOnSite(renderContext.site.siteKey, connectorView.path)}">
                 <c:set var="siteHasConnector" value="true"/>
                 <template:module node="${connectorView}" />
             </c:if>
@@ -76,12 +75,10 @@
     </script>
 
     <script type="text/ng-template" id="mappers.html">
-        <jcr:sql var="oauthMappersViews" sql="SELECT * FROM [joamix:oauthMapperView]"/>
+        <jcr:sql var="oauthMappersViews" sql="SELECT * FROM [joamix:oauthMapperView] as mapperView WHERE ISDESCENDANTNODE(mapperView, '/modules')"/>
         <c:set var="siteHasMapper" value="false"/>
         <c:forEach items="${oauthMappersViews.nodes}" var="mapperView">
-            <c:set var="currentModuleName" value="${fn:substringAfter(mapperView.path, '/modules/')}"/>
-            <c:set var="currentModuleName" value="${fn:substringBefore(currentModuleName, '/')}"/>
-            <c:if test="${functions:contains(renderContext.site.installedModules, currentModuleName)}">
+            <c:if test="${joauth:isModuleActiveOnSite(renderContext.site.siteKey, mapperView.path)}">
                 <c:set var="siteHasMapper" value="true"/>
                 <template:module node="${mapperView}"/>
             </c:if>
