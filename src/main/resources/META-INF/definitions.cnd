@@ -32,3 +32,5 @@
 [joamix:oauthMapperSettings] > jmix:autoPublish mixin
  - isActivate (boolean) indexed=no nofulltext
  - mapping (string) hidden indexed=no nofulltext
+
+[joant:oauthResult] > jnt:content, jmix:siteComponent, jmix:studioOnly

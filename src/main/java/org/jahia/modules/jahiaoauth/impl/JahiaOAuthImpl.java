@@ -280,4 +280,9 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
     public void updateCacheEntry(String originalSessionId, String newSessionId) {
         jahiaOAuthCacheManager.updateCacheEntry(originalSessionId, newSessionId);
     }
+
+    @Override
+    public String getResultUrl(String siteUrl, Boolean isAuthenticate) {
+        return StringUtils.substringBeforeLast(siteUrl, ".html") + "/oauth-result.html?isAuthenticate=" + isAuthenticate;
+    }
 }

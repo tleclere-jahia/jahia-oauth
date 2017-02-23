@@ -51,4 +51,6 @@ public interface JahiaOAuth {
     HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId);
 
     void updateCacheEntry(String originalSessionId, String newSessionId);
+
+    String getResultUrl(String siteUrl, Boolean isAuthenticate);
 }

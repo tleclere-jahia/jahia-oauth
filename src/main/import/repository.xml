@@ -29,8 +29,41 @@
                             </pagecontent>
                         </oauth-connector-site-settings>
                     </site-settings-base>
+                    <oauth-result j:hiddenTemplate="true"
+                          j:view="oauthResult"
+                          jcr:primaryType="jnt:pageTemplate">
+                        <pagecontent jcr:primaryType="jnt:contentList">
+                            <authentication-result jcr:primaryType="joant:oauthResult"/>
+                        </pagecontent>
+                    </oauth-result>
                 </templates>
                 
+                <oauth-result j:templateName="oauth-result" jcr:primaryType="jnt:page">
+                    <j:translation_en jcr:language="en"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                    <j:translation_de jcr:language="de"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                    <j:translation_pt jcr:language="pt"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                    <j:translation_it jcr:language="it"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                    <j:translation_fr jcr:language="fr"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                    <j:translation_es jcr:language="es"
+                              jcr:mixinTypes="mix:title"
+                              jcr:primaryType="jnt:translation"
+                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                </oauth-result>
             </jahia-oauth>
     </modules>
 </content>
