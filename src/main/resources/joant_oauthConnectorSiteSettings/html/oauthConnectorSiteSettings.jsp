@@ -33,7 +33,9 @@
 <template:addResources>
     <script>
         var jahiaOAuthContext = {
+            siteKey: '${renderContext.site.siteKey}',
             baseEdit: '${url.context}${url.baseEdit}',
+            context: '${url.context}',
             sitePath: '${renderContext.siteInfo.sitePath}',
             i18n: joai18n
         }

@@ -1,3 +1,26 @@
+/*
+ * ==========================================================================================
+ * =                            JAHIA'S ENTERPRISE DISTRIBUTION                             =
+ * ==========================================================================================
+ *
+ *                                  http://www.jahia.com
+ *
+ * JAHIA'S ENTERPRISE DISTRIBUTIONS LICENSING - IMPORTANT INFORMATION
+ * ==========================================================================================
+ *
+ *     Copyright (C) 2002-2017 Jahia Solutions Group. All rights reserved.
+ *
+ *     This file is part of a Jahia's Enterprise Distribution.
+ *
+ *     Jahia's Enterprise Distributions must be used in accordance with the terms
+ *     contained in the Jahia Solutions Group Terms & Conditions as well as
+ *     the Jahia Sustainable Enterprise License (JSEL).
+ *
+ *     For questions regarding licensing, support, production usage...
+ *     please contact our team at sales@jahia.com or go to http://www.jahia.com/license.
+ *
+ * ==========================================================================================
+ */
 package org.jahia.modules.jahiaoauth.impl;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -53,21 +76,21 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
         OAuth2AccessToken accessToken = service.getAccessToken(token);
 
         // Request all the properties available right now
-        HashMap<String, Map<String, Object>> properties = (HashMap<String, Map<String, Object>>) oAuthBase20ApiMap.get(serviceName).get(Constants.PROPERTIES);
+        List<Map<String, Object>> properties = (List<Map<String, Object>>) oAuthBase20ApiMap.get(serviceName).get(Constants.PROPERTIES);
         String protectedResourceUrl = (String) oAuthBase20ApiMap.get(serviceName).get(Constants.PROTECTED_RESOURCE_URL);
         if ((boolean) oAuthBase20ApiMap.get(serviceName).get(Constants.URL_CAN_TAKE_VALUE)) {
             StringBuilder propertiesAsString = new StringBuilder();
             boolean asPrevious = false;
-            for (Map.Entry<String, Map<String, Object>> entry : properties.entrySet()) {
+            for (Map<String, Object> entry : properties) {
                 if (asPrevious) {
                     propertiesAsString.append(",");
                 }
 
-                if ((boolean) entry.getValue().get(Constants.CAN_BE_REQUESTED)) {
-                    propertiesAsString.append(entry.getKey());
+                if ((boolean) entry.get(Constants.CAN_BE_REQUESTED)) {
+                    propertiesAsString.append(entry.get(Constants.PROPERTY_NAME));
                     asPrevious = true;
                 } else {
-                    String propertyToRequest = (String) entry.getValue().get(Constants.PROPERTY_TO_REQUEST);
+                    String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
                     if (!StringUtils.contains(propertiesAsString.toString(), propertyToRequest)) {
                         propertiesAsString.append(propertyToRequest);
                         asPrevious = true;
@@ -88,19 +111,20 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
             JSONObject responseJson = new JSONObject(response.getBody());
 
             if (logger.isDebugEnabled()) {
-                logger.info(responseJson.toString());
+                logger.debug(responseJson.toString());
             }
 
             // Store in a simple map the results by properties as mapped in the connector
             HashMap<String, Object> propertiesResult = new HashMap<>();
-            for (Map.Entry<String, Map<String, Object>> entry : properties.entrySet()) {
-                if ((boolean) entry.getValue().get(Constants.CAN_BE_REQUESTED)) {
-                    propertiesResult.put(entry.getKey(), responseJson.get(entry.getKey()));
+            for (Map<String, Object> entry : properties) {
+                String propertyName = (String) entry.get(Constants.PROPERTY_NAME);
+                if ((boolean) entry.get(Constants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
+                    propertiesResult.put(propertyName, responseJson.get(propertyName));
                 } else {
-                    String propertyToRequest = (String) entry.getValue().get(Constants.PROPERTY_TO_REQUEST);
-                    String pathToProperty = (String) entry.getValue().get(Constants.VALUE_PATH);
-                    JSONObject jsonObject = responseJson.getJSONObject(propertyToRequest);
-                    extractPropertyFromJSON(propertiesResult, jsonObject, null, pathToProperty, entry.getKey());
+                    String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
+                    if (responseJson.has(propertyToRequest)) {
+                        extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, (String) entry.get(Constants.VALUE_PATH), propertyName);
+                    }
                 }
             }
 
@@ -118,7 +142,14 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
 
                     for (int i = 0 ; i < jsonArray.length() ; i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        mapperResult.put(jsonObject.getString(Constants.MAPPER), propertiesResult.get(jsonObject.getString(Constants.CONNECTOR)));
+                        JSONObject mapper = jsonObject.getJSONObject(Constants.MAPPER);
+                        JSONObject connector = jsonObject.getJSONObject(Constants.CONNECTOR);
+                        if (mapper.getBoolean(Constants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
+                            throw new RepositoryException("Could not execute mapper: missing mandatory property");
+                        }
+                        if (propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
+                            mapperResult.put(mapper.getString(Constants.PROPERTY_NAME), propertiesResult.get(connector.getString(Constants.PROPERTY_NAME)));
+                        }
                     }
 
                     jahiaOAuthCacheManager.cacheMapperResults(oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + "_" + state, mapperResult);
@@ -150,24 +181,24 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
 
             pathToProperty = StringUtils.substringAfter(pathToProperty, "/" + key);
 
-            if (StringUtils.isBlank(pathToProperty)) {
+            if (StringUtils.isBlank(pathToProperty) && jsonObject.has(key)) {
                 propertiesResult.put(propertyName, jsonObject.get(key));
             } else {
-                if (StringUtils.startsWith(pathToProperty, "/")) {
+                if (StringUtils.startsWith(pathToProperty, "/") && jsonObject.has(key)) {
                     extractPropertyFromJSON(propertiesResult, jsonObject.getJSONObject(key), null, pathToProperty, propertyName);
-                } else {
+                } else if (jsonObject.has(key)) {
                     extractPropertyFromJSON(propertiesResult, null, jsonObject.getJSONArray(key), pathToProperty, propertyName);
                 }
             }
         } else {
             int arrayIndex = new Integer(StringUtils.substringBetween(pathToProperty, "[", "]"));
             pathToProperty = StringUtils.substringAfter(pathToProperty, "]");
-            if (StringUtils.isBlank(pathToProperty)) {
+            if (StringUtils.isBlank(pathToProperty) && jsonArray.length() >= arrayIndex) {
                 propertiesResult.put(propertyName, jsonArray.get(arrayIndex));
             } else {
-                if (StringUtils.startsWith(pathToProperty, "/")) {
+                if (StringUtils.startsWith(pathToProperty, "/") && jsonArray.length() >= arrayIndex) {
                     extractPropertyFromJSON(propertiesResult, jsonArray.getJSONObject(arrayIndex), null, pathToProperty, propertyName);
-                } else {
+                } else if (jsonArray.length() >= arrayIndex) {
                     extractPropertyFromJSON(propertiesResult, null, jsonArray.getJSONArray(arrayIndex), pathToProperty, propertyName);
                 }
             }
@@ -198,7 +229,7 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
     }
 
     @Override
-    public void addDataToOAuthMapperPropertiesMap(Map<String, Map<String, Object>> mapperProperties, String mapperServiceName) {
+    public void addDataToOAuthMapperPropertiesMap(List<Map<String, Object>> mapperProperties, String mapperServiceName) {
         if (oAuthMapperPropertiesMap == null) {
             oAuthMapperPropertiesMap = new HashMap<>();
         }
@@ -207,22 +238,24 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
             oAuthMapperPropertiesMap.put(mapperServiceName, new HashMap<String, Object>());
         }
 
-        oAuthMapperPropertiesMap.get(mapperServiceName).put(Constants.PROPERTIES, mapperProperties);
+        if (mapperProperties != null) {
+            oAuthMapperPropertiesMap.get(mapperServiceName).put(Constants.PROPERTIES, mapperProperties);
+        }
         oAuthMapperPropertiesMap.get(mapperServiceName).put(Constants.MAPPER_SERVICE_NAME, mapperServiceName);
     }
 
     @Override
-    public JSONObject getConnectorProperties(String serviceName) throws JSONException {
-        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthBase20ApiMap.get(serviceName).get(Constants.PROPERTIES);
-        JSONObject jsonObject = new JSONObject(map);
-        return jsonObject;
+    public JSONArray getConnectorProperties(String serviceName) throws JSONException {
+        List<Map<String, Object>> list = (List<Map<String, Object>>) oAuthBase20ApiMap.get(serviceName).get(Constants.PROPERTIES);
+        JSONArray jsonArray = new JSONArray(list);
+        return jsonArray;
     }
 
     @Override
-    public JSONObject getMapperProperties(String mapperServiceName) throws JSONException {
-        HashMap<String, Map<String, Object>> map = (HashMap<String, Map<String, Object>>) oAuthMapperPropertiesMap.get(mapperServiceName).get(Constants.PROPERTIES);
-        JSONObject jsonObject = new JSONObject(map);
-        return jsonObject;
+    public JSONArray getMapperProperties(String mapperServiceName) throws JSONException {
+        List<Map<String, Object>> map = (List<Map<String, Object>>) oAuthMapperPropertiesMap.get(mapperServiceName).get(Constants.PROPERTIES);
+        JSONArray jsonArray = new JSONArray(map);
+        return jsonArray;
     }
 
     public void setoAuthBase20ApiMap(Map<String, Map<String, Object>> oAuthBase20ApiMap) {
