@@ -1,5 +1,5 @@
 angular.module('JahiaOAuth', ['ngMaterial', 'ngRoute', 'ngAnimate', 'ngMessages', 'i18n'])
-    .config(function($mdThemingProvider, $mdToastProvider, $routeProvider) {
+    .config(function($mdThemingProvider, $routeProvider) {
         $routeProvider
             .when('/connectors', {
                 templateUrl: 'connectors.html'
