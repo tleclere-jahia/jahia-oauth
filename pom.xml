@@ -48,7 +48,7 @@
     </scm>
 
     <properties>
-        <export-package>org.jahia.modules.jahiaoauth.service</export-package>
+        <export-package>org.jahia.modules.jahiaoauth.service,org.jahia.modules.jahiaoauth.decorator</export-package>
     </properties>
 
     <repositories>

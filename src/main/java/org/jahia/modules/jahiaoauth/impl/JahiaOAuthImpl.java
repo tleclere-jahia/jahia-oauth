@@ -145,6 +145,7 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                         JSONObject mapper = jsonObject.getJSONObject(Constants.MAPPER);
                         JSONObject connector = jsonObject.getJSONObject(Constants.CONNECTOR);
                         if (mapper.getBoolean(Constants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
+                            logger.error("JSON response was: " + responseJson.toString());
                             throw new RepositoryException("Could not execute mapper: missing mandatory property");
                         }
                         if (propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
