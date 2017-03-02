@@ -25,6 +25,7 @@ package org.jahia.modules.jahiaoauth.impl;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.BaseApi;
+import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
@@ -82,16 +83,18 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
             StringBuilder propertiesAsString = new StringBuilder();
             boolean asPrevious = false;
             for (Map<String, Object> entry : properties) {
-                if (asPrevious) {
-                    propertiesAsString.append(",");
-                }
-
                 if ((boolean) entry.get(Constants.CAN_BE_REQUESTED)) {
+                    if (asPrevious) {
+                        propertiesAsString.append(",");
+                    }
                     propertiesAsString.append(entry.get(Constants.PROPERTY_NAME));
                     asPrevious = true;
                 } else {
                     String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
                     if (!StringUtils.contains(propertiesAsString.toString(), propertyToRequest)) {
+                        if (asPrevious) {
+                            propertiesAsString.append(",");
+                        }
                         propertiesAsString.append(propertyToRequest);
                         asPrevious = true;
                     } else {
@@ -108,62 +111,65 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
 
         // if we got the properties then execute mapper
         if (response.getCode() == HttpServletResponse.SC_OK) {
-            JSONObject responseJson = new JSONObject(response.getBody());
-
-            if (logger.isDebugEnabled()) {
+            try {
+                JSONObject responseJson = new JSONObject(response.getBody());
                 logger.debug(responseJson.toString());
-            }
 
-            // Store in a simple map the results by properties as mapped in the connector
-            HashMap<String, Object> propertiesResult = new HashMap<>();
-            for (Map<String, Object> entry : properties) {
-                String propertyName = (String) entry.get(Constants.PROPERTY_NAME);
-                if ((boolean) entry.get(Constants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
-                    propertiesResult.put(propertyName, responseJson.get(propertyName));
-                } else {
-                    String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
-                    if (responseJson.has(propertyToRequest)) {
-                        extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, (String) entry.get(Constants.VALUE_PATH), propertyName);
-                    }
-                }
-            }
-
-            // Get Mappers node
-            JCRNodeIteratorWrapper mappersNi = connectorNode.getNode(Constants.MAPPERS_NODE_NAME).getNodes();
-            while (mappersNi.hasNext()) {
-                JCRNodeWrapper mapperNode = (JCRNodeWrapper) mappersNi.nextNode();
-                // make sure mappers is activate
-                if (mapperNode.getProperty(Constants.PROPERTY_IS_ACTIVATE).getBoolean()) {
-                    HashMap<String, Object> mapperResult = new HashMap<>();
-                    // add token to result
-                    mapperResult.put(Constants.TOKEN, token);
-
-                    JSONArray jsonArray = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
-
-                    for (int i = 0 ; i < jsonArray.length() ; i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        JSONObject mapper = jsonObject.getJSONObject(Constants.MAPPER);
-                        JSONObject connector = jsonObject.getJSONObject(Constants.CONNECTOR);
-                        if (mapper.getBoolean(Constants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
-                            logger.error("JSON response was: " + responseJson.toString());
-                            throw new RepositoryException("Could not execute mapper: missing mandatory property");
-                        }
-                        if (propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
-                            mapperResult.put(mapper.getString(Constants.PROPERTY_NAME), propertiesResult.get(connector.getString(Constants.PROPERTY_NAME)));
+                // Store in a simple map the results by properties as mapped in the connector
+                HashMap<String, Object> propertiesResult = new HashMap<>();
+                for (Map<String, Object> entry : properties) {
+                    String propertyName = (String) entry.get(Constants.PROPERTY_NAME);
+                    if ((boolean) entry.get(Constants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
+                        propertiesResult.put(propertyName, responseJson.get(propertyName));
+                    } else {
+                        String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
+                        if (responseJson.has(propertyToRequest)) {
+                            extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, (String) entry.get(Constants.VALUE_PATH), propertyName);
                         }
                     }
+                }
 
-                    jahiaOAuthCacheManager.cacheMapperResults(oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + "_" + state, mapperResult);
-                    String filter = "(" + Constants.MAPPER_SERVICE_NAME + "=" + oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + ")";
-                    ServiceReference[] serviceReference = bundleContext.getServiceReferences(Mapper.class.getName(), filter);
-                    if (serviceReference != null) {
-                        Mapper mapper = (Mapper) bundleContext.getService(serviceReference[0]);
-                        mapper.executeMapper(mapperResult);
+                // Get Mappers node
+                JCRNodeIteratorWrapper mappersNi = connectorNode.getNode(Constants.MAPPERS_NODE_NAME).getNodes();
+                while (mappersNi.hasNext()) {
+                    JCRNodeWrapper mapperNode = (JCRNodeWrapper) mappersNi.nextNode();
+                    // make sure mappers is activate
+                    if (mapperNode.getProperty(Constants.PROPERTY_IS_ACTIVATE).getBoolean()) {
+                        HashMap<String, Object> mapperResult = new HashMap<>();
+                        // add token to result
+                        mapperResult.put(Constants.TOKEN, token);
+
+                        JSONArray jsonArray = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
+
+                        for (int i = 0 ; i < jsonArray.length() ; i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            JSONObject mapper = jsonObject.getJSONObject(Constants.MAPPER);
+                            JSONObject connector = jsonObject.getJSONObject(Constants.CONNECTOR);
+                            if (mapper.getBoolean(Constants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
+                                logger.error("JSON response was: " + responseJson.toString());
+                                throw new RepositoryException("Could not execute mapper: missing mandatory property");
+                            }
+                            if (propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
+                                mapperResult.put(mapper.getString(Constants.PROPERTY_NAME), propertiesResult.get(connector.getString(Constants.PROPERTY_NAME)));
+                            }
+                        }
+
+                        jahiaOAuthCacheManager.cacheMapperResults(oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + "_" + state, mapperResult);
+                        String filter = "(" + Constants.MAPPER_SERVICE_NAME + "=" + oAuthMapperPropertiesMap.get(mapperNode.getName()).get(Constants.MAPPER_SERVICE_NAME) + ")";
+                        ServiceReference[] serviceReference = bundleContext.getServiceReferences(Mapper.class.getName(), filter);
+                        if (serviceReference != null) {
+                            Mapper mapper = (Mapper) bundleContext.getService(serviceReference[0]);
+                            mapper.executeMapper(mapperResult);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                logger.error(response.getBody());
+                throw e;
             }
         } else {
             logger.error(response.getBody());
+            throw new OAuthException("Error throw by the server when trying to get data");
         }
     }
 
@@ -213,7 +219,7 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                 .callback(connectorNode.getPropertyAsString(Constants.PROPERTY_CALLBACK_URL))
                 .state(state);
 
-        if (connectorNode.hasProperty(Constants.PROPERTY_SCOPE)) {
+        if (connectorNode.hasProperty(Constants.PROPERTY_SCOPE) && StringUtils.isNotBlank(connectorNode.getPropertyAsString(Constants.PROPERTY_SCOPE))) {
             serviceBuilder.scope(connectorNode.getPropertyAsString(Constants.PROPERTY_SCOPE));
         }
 
