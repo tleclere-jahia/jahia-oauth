@@ -17,8 +17,6 @@
 <%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
-<template:addResources type="javascript" resources="jquery.min.js"/>
-
 <div class="oauth-result-header">
     <h2><fmt:message key="joant_oauthResult"/></h2>
 </div>

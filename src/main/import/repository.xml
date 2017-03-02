@@ -42,27 +42,27 @@
                     <j:translation_en jcr:language="en"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Authentication Result"/>
                     <j:translation_de jcr:language="de"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Authentication Result"/>
                     <j:translation_pt jcr:language="pt"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Authentication Result"/>
                     <j:translation_it jcr:language="it"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Authentication Result"/>
                     <j:translation_fr jcr:language="fr"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Résultat de l'authentification"/>
                     <j:translation_es jcr:language="es"
                               jcr:mixinTypes="mix:title"
                               jcr:primaryType="jnt:translation"
-                              jcr:title="##resourceBundle(joant_oauthResult)##"/>
+                              jcr:title="Authentication Result"/>
                 </oauth-result>
             </jahia-oauth>
     </modules>

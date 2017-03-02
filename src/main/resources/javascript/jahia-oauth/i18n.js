@@ -1,33 +1,56 @@
-angular.module('i18n', [])
-    .service('i18nService', function () {
-        this.message = function (key) {
-            if (jahiaOAuthContext.i18n && jahiaOAuthContext.i18n[key]) {
-                return jahiaOAuthContext.i18n[key];
-            } else {
-                return "???" + key + "???";
-            }
+(function() {
+    'use strict';
+
+    angular.module('i18n', []).service('i18nService', i18nService);
+
+    function i18nService() {
+        var i18nMap = {};
+
+        return {
+            addKey: addKey,
+            message: message,
+            format: format
         };
 
-        this.format = function (key, params) {
+        function message(key) {
+            if (i18nMap && i18nMap[key]) {
+                return i18nMap[key];
+            } else {
+                return '???' + key + '???';
+            }
+        }
+
+        function format(key, params) {
             var replacer = function(params){
                 return function(s, index) {
-                    return params[index] ? (params[index] == '__void__' ? "" : params[index]) : "";
+                    return params[index] ? (params[index] == '__void__' ? '' : params[index]) : '';
                 };
             };
 
             if(params){
-                if (jahiaOAuthContext.i18n && jahiaOAuthContext.i18n[key]) {
-                    return jahiaOAuthContext.i18n[key].replace(/\{(\w+)\}/g, replacer(params.split('|')));
+                if (i18nMap && i18nMap[key]) {
+                    return i18nMap[key].replace(/\{(\w+)\}/g, replacer(params.split('|')));
                 } else {
-                    return "???" + key + "???";
+                    return '???' + key + '???';
                 }
             } else {
                 return this.message(key);
             }
-        };
-    })
+        }
 
-    .directive("messageKey", ['i18nService', function (i18nService) {
+        function addKey(newI18nMap) {
+            angular.forEach(newI18nMap, function (value, key) {
+                i18nMap[key] = value;
+            });
+            console.log(i18nMap)
+        }
+    }
+
+    angular.module('i18n').directive('messageKey', messageKey);
+
+    translate.$inject = ['i18nService'];
+
+    function messageKey(i18nService) {
         return {
             restrict: 'A',
             link: function ($scope, $element, $attrs) {
@@ -47,10 +70,15 @@ angular.module('i18n', [])
                 }
             }
         };
-    }])
+    }
 
-    .filter('translate',  ['i18nService', function(i18nService) {
+    angular.module('i18n').filter('translate', translate);
+
+    translate.$inject = ['i18nService'];
+
+    function translate(i18nService) {
         return function(input) {
             return i18nService.message(input);
         };
-    }]);
+    }
+})();

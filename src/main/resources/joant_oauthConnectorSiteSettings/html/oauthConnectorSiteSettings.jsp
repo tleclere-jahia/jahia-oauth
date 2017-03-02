@@ -28,25 +28,27 @@
                                                     jahia-oauth/vendor/angular-material.js,
                                                     jahia-oauth/vendor/angular-route.js,
                                                     jahia-oauth/i18n.js,
-                                                    jahia-oauth/app.js"/>
+                                                    jahia-oauth/app.js,
+                                                    jahia-oauth/helper-service.js,
+                                                    jahia-oauth/settings-service.js,
+                                                    jahia-oauth/header-controller.js"/>
 
 <template:addResources>
     <script>
-        var jahiaOAuthContext = {
+        angular.module('JahiaOAuthApp').constant('jahiaContext', {
             siteKey: '${renderContext.site.siteKey}',
             baseEdit: '${url.context}${url.baseEdit}',
             context: '${url.context}',
-            sitePath: '${renderContext.siteInfo.sitePath}',
-            i18n: joai18n
-        }
+            sitePath: '${renderContext.siteInfo.sitePath}'
+        });
     </script>
 </template:addResources>
 
-<div ng-app="JahiaOAuth" layout="column" layout-fill>
+<div ng-app="JahiaOAuthApp" layout="column" layout-fill>
     <div layout="row">
-        <md-toolbar ng-controller="headerController">
+        <md-toolbar ng-controller="HeaderController as headerCtrl">
             <div class="md-toolbar-tools">
-                <md-button class="md-icon-button" ng-show="isMapperView()" ng-click="goToConnectors()">
+                <md-button class="md-icon-button" ng-show="headerCtrl.isMapperView()" ng-click="headerCtrl.goToConnectors()">
                     <md-icon>keyboard_arrow_left</md-icon>
                 </md-button>
                 <h2>
