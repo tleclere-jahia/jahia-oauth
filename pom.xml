@@ -51,6 +51,17 @@
         <export-package>org.jahia.modules.jahiaoauth.service,org.jahia.modules.jahiaoauth.decorator</export-package>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>oauth-releases</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>oauth-snapshots</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>jahia-public</id>
