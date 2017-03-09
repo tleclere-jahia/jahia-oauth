@@ -136,6 +136,7 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                         HashMap<String, Object> mapperResult = new HashMap<>();
                         // add token to result
                         mapperResult.put(Constants.TOKEN, token);
+                        mapperResult.put(Constants.CONNECTOR_NAME_AND_ID, serviceName + "_" + propertiesResult.get("id"));
 
                         JSONArray jsonArray = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
 

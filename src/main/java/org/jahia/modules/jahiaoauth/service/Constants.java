@@ -39,6 +39,7 @@ public class Constants {
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_MANDATORY = "mandatory";
 
+    public static final String CONNECTOR_NAME_AND_ID = "connectorNameAndID";
     public static final String STATE = "state";
     public static final String TOKEN = "token";
     public static final String NODE_TYPE = "nodeType";
