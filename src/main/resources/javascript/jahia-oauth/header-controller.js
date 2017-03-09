@@ -3,14 +3,15 @@
 
     angular.module('JahiaOAuthApp').controller('HeaderController', HeaderController);
 
-    HeaderController.$inject = ['$location', 'i18nService'];
+    HeaderController.$inject = ['$location', '$routeParams', 'i18nService'];
 
-    function HeaderController($location, i18nService) {
+    function HeaderController($location, $routeParams, i18nService) {
         var vm = this;
 
         // Functions
         vm.isMapperView = isMapperView;
         vm.goToConnectors = goToConnectors;
+        vm.getConnectorName = getConnectorName;
 
         init();
 
@@ -20,6 +21,10 @@
 
         function goToConnectors() {
             $location.path('/connectors');
+        }
+
+        function getConnectorName() {
+            return i18nService.message($routeParams.connectorServiceName + '.title');
         }
 
         function init() {

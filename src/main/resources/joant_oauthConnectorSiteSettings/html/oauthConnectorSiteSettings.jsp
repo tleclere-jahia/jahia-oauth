@@ -45,14 +45,15 @@
 </template:addResources>
 
 <div ng-app="JahiaOAuthApp" layout="column" layout-fill>
-    <div layout="row">
+    <div layout="row" md-whiteframe="1">
         <md-toolbar ng-controller="HeaderController as headerCtrl">
             <div class="md-toolbar-tools">
                 <md-button class="md-icon-button" ng-show="headerCtrl.isMapperView()" ng-click="headerCtrl.goToConnectors()">
-                    <md-icon>keyboard_arrow_left</md-icon>
+                    <md-icon>arrow_back</md-icon>
                 </md-button>
                 <h2>
-                    <span message-key="joant_oauthConnectorSiteSettings"></span>
+                    <span ng-show="!headerCtrl.isMapperView()" message-key="joant_oauthConnectorSiteSettings"></span>
+                    <span ng-if="headerCtrl.isMapperView()">{{ headerCtrl.getConnectorName() }}</span>
                 </h2>
             </div>
         </md-toolbar>

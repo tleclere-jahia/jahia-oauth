@@ -36,3 +36,24 @@ md-toast.md-error-toast-theme .md-toast-content {
 md-toast.md-success-toast-theme .md-toast-content {
     background-color: #4CAF50;
 }
+
+hr {
+    border: none;
+    border-bottom: 1px dashed #ccc;
+}
+
+div[ng-app=JahiaOAuthApp] md-card-title {
+    padding-top: 16px;
+}
+
+div[ng-app=JahiaOAuthApp] .md-subhead.joa-description {
+    color: rgba(0, 0, 0, .52);
+    font-weight: 500;
+    margin-top: -24px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+div[ng-app=JahiaOAuthApp] .joa-mandatory-property {
+    color: #F44336;
+}

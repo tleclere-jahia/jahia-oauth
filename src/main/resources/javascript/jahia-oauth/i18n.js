@@ -42,7 +42,6 @@
             angular.forEach(newI18nMap, function (value, key) {
                 i18nMap[key] = value;
             });
-            console.log(i18nMap)
         }
     }
 
