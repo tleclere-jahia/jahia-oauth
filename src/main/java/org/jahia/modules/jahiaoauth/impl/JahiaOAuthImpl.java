@@ -163,6 +163,7 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                 }
             } catch (Exception e) {
                 logger.error(response.getBody());
+                logger.error(e.getMessage());
                 throw e;
             }
         } else {
