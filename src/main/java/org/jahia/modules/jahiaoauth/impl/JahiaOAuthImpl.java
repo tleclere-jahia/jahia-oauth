@@ -97,8 +97,6 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                         }
                         propertiesAsString.append(propertyToRequest);
                         asPrevious = true;
-                    } else {
-                        asPrevious = false;
                     }
                 }
             }
