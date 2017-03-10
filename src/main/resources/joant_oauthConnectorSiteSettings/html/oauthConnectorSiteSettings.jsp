@@ -45,7 +45,7 @@
 </template:addResources>
 
 <div ng-app="JahiaOAuthApp" layout="column" layout-fill>
-    <div layout="row" md-whiteframe="1">
+    <div md-whiteframe="1">
         <md-toolbar ng-controller="HeaderController as headerCtrl">
             <div class="md-toolbar-tools">
                 <md-button class="md-icon-button" ng-show="headerCtrl.isMapperView()" ng-click="headerCtrl.goToConnectors()">
