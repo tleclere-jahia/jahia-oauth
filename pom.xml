@@ -49,6 +49,7 @@
 
     <properties>
         <export-package>org.jahia.modules.jahiaoauth.service,org.jahia.modules.jahiaoauth.decorator</export-package>
+        <jahia-static-resources>/css,/javascript,/icons</jahia-static-resources>
     </properties>
 
     <distributionManagement>
