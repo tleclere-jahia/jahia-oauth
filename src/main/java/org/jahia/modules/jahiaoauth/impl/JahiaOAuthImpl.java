@@ -122,7 +122,12 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                     } else {
                         String propertyToRequest = (String) entry.get(Constants.PROPERTY_TO_REQUEST);
                         if (responseJson.has(propertyToRequest)) {
-                            extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, (String) entry.get(Constants.VALUE_PATH), propertyName);
+                            String pathToProperty = (String) entry.get(Constants.VALUE_PATH);
+                            if (StringUtils.startsWith(pathToProperty, "/")) {
+                                extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, pathToProperty, propertyName);
+                            } else {
+                                extractPropertyFromJSON(propertiesResult, null, responseJson.getJSONArray(propertyToRequest), pathToProperty, propertyName);
+                            }
                         }
                     }
                 }
@@ -138,10 +143,9 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                         mapperResult.put(Constants.TOKEN, token);
                         mapperResult.put(Constants.CONNECTOR_NAME_AND_ID, serviceName + "_" + propertiesResult.get("id"));
 
-                        JSONArray jsonArray = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
-
-                        for (int i = 0 ; i < jsonArray.length() ; i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        JSONArray mapping = new JSONArray(mapperNode.getPropertyAsString(Constants.PROPERTY_MAPPING));
+                        for (int i = 0 ; i < mapping.length() ; i++) {
+                            JSONObject jsonObject = mapping.getJSONObject(i);
                             JSONObject mapper = jsonObject.getJSONObject(Constants.MAPPER);
                             JSONObject connector = jsonObject.getJSONObject(Constants.CONNECTOR);
                             if (mapper.getBoolean(Constants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
@@ -149,7 +153,13 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                                 throw new RepositoryException("Could not execute mapper: missing mandatory property");
                             }
                             if (propertiesResult.containsKey(connector.getString(Constants.PROPERTY_NAME))) {
-                                mapperResult.put(mapper.getString(Constants.PROPERTY_NAME), propertiesResult.get(connector.getString(Constants.PROPERTY_NAME)));
+                                Map<String, Object> propertyInfo = new HashMap<>();
+                                propertyInfo.put(Constants.PROPERTY_VALUE, propertiesResult.get(connector.getString(Constants.PROPERTY_NAME)));
+                                propertyInfo.put(Constants.PROPERTY_VALUE_TYPE, connector.getString(Constants.PROPERTY_VALUE_TYPE));
+                                if (connector.has(Constants.PROPERTY_VALUE_FORMAT)) {
+                                    propertyInfo.put(Constants.PROPERTY_VALUE_FORMAT, connector.getString(Constants.PROPERTY_VALUE_FORMAT));
+                                }
+                                mapperResult.put(mapper.getString(Constants.PROPERTY_NAME), propertyInfo);
                             }
                         }
 
@@ -163,12 +173,11 @@ public class JahiaOAuthImpl implements JahiaOAuth, BundleContextAware {
                     }
                 }
             } catch (Exception e) {
-                logger.error(response.getBody());
-                logger.error(e.getMessage());
+                logger.error(response.getBody(), e);
                 throw e;
             }
         } else {
-            logger.error(response.getBody());
+            logger.error("Did not received expected json, response body was: ", response.getBody());
             throw new OAuthException("Error throw by the server when trying to get data");
         }
     }
