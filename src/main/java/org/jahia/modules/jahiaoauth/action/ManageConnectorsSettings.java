@@ -66,7 +66,7 @@ public class ManageConnectorsSettings extends Action {
 
             String nodeName = parameters.get(Constants.SERVICE_NAME).get(0);
             if (!jahiaOAuthNode.hasNode(nodeName)) {
-                return new ActionResult(HttpServletResponse.SC_OK);
+                return new ActionResult(HttpServletResponse.SC_NO_CONTENT, null, response);
             }
 
             JCRNodeWrapper connectorSettingsNode = jahiaOAuthNode.getNode(nodeName);
