@@ -1,6 +1,8 @@
 package org.jahia.modules.jahiaoauth.service;
 
 /**
+ * Exception throw by Jahia OAuth
+ *
  * @author dgaillard
  */
 public class JahiaOAuthException extends Exception {

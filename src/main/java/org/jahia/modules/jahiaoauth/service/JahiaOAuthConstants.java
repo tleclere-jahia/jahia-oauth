@@ -24,6 +24,8 @@
 package org.jahia.modules.jahiaoauth.service;
 
 /**
+ * Constants use across the application
+ *
  * @author dgaillard
  */
 public class JahiaOAuthConstants {
@@ -45,7 +47,12 @@ public class JahiaOAuthConstants {
 
     public static final String CONNECTOR_NAME_AND_ID = "connectorNameAndID";
     public static final String STATE = "state";
-    public static final String TOKEN = "token";
+    public static final String TOKEN_DATA = "tokenData";
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String TOKEN_EXPIRES_IN = "expiresIn";
+    public static final String REFRESH_TOKEN = "refreshToken";
+    public static final String TOKEN_SCOPE = "tokenScope";
+    public static final String TOKEN_TYPE = "tokenType";
     public static final String NODE_TYPE = "nodeType";
     public static final String PROPERTIES = "properties";
     public static final String METHOD_GET = "GET";

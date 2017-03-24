@@ -74,9 +74,9 @@ public class EHCacheManagerImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public void cacheMapperResults(String userSessionId, HashMap<String, Object> mapperResult) {
+    public void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult) {
         ModuleClassLoaderAwareCacheEntry cacheEntry = new ModuleClassLoaderAwareCacheEntry(mapperResult, "jahia-oauth");
-        userCache.put(new Element(userSessionId, cacheEntry));
+        userCache.put(new Element(cacheKey, cacheEntry));
     }
 
     @Override

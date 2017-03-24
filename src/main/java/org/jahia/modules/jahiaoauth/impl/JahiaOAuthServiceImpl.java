@@ -56,9 +56,9 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
     private JahiaOAuthCacheService jahiaOAuthCacheService;
 
     @Override
-    public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String serviceName, String sessionId) throws RepositoryException {
-        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(serviceName);
-        OAuth20Service service = createOAuth20Service(connectorNode, serviceName, sessionId);
+    public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId) throws RepositoryException {
+        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(connectorServiceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, connectorServiceName, sessionId);
 
         return service.getAuthorizationUrl();
     }
@@ -74,16 +74,23 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
     }
 
     @Override
-    public void extractTokenAndExecuteMappers(JCRNodeWrapper jahiaOAuthNode, String serviceName, String token, String state) throws Exception {
-        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(serviceName);
-        OAuth20Service service = createOAuth20Service(connectorNode, serviceName, state);
-        OAuth2AccessToken accessToken = service.getAccessToken(token);
+    public Map<String, Object> refreshAccessToken(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String refreshToken) throws Exception {
+        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(connectorServiceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, connectorServiceName, null);
+        OAuth2AccessToken accessToken = service.refreshAccessToken(refreshToken);
+        return extractAccessTokenData(accessToken);
+    }
 
-        ConnectorService connectorService = BundleUtils.getOsgiService(ConnectorService.class, "(" + JahiaOAuthConstants.CONNECTOR_SERVICE_NAME + "=" + serviceName + ")");
+    @Override
+    public Map<String, Object> requestUserData(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String mapperServiceName, String refreshToken) throws Exception {
+        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(connectorServiceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, connectorServiceName, null);
+        OAuth2AccessToken accessToken = service.refreshAccessToken(refreshToken);
 
+        ConnectorService connectorService = BundleUtils.getOsgiService(ConnectorService.class, "(" + JahiaOAuthConstants.CONNECTOR_SERVICE_NAME + "=" + connectorServiceName + ")");
         if (connectorService == null) {
-            logger.error("Connector service was null for service name: " + serviceName);
-            throw new JahiaOAuthException("Connector service was null for service name: " + serviceName);
+            logger.error("Connector service was null for service name: " + connectorServiceName);
+            throw new JahiaOAuthException("Connector service was null for service name: " + connectorServiceName);
         }
 
         // Request all the properties available right now
@@ -99,24 +106,48 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                 logger.debug(responseJson.toString());
 
                 // Store in a simple map the results by properties as mapped in the connector
-                HashMap<String, Object> propertiesResult = new HashMap<>();
-                List<Map<String, Object>> properties = connectorService.getAvailableProperties();
-                for (Map<String, Object> entry : properties) {
-                    String propertyName = (String) entry.get(JahiaOAuthConstants.PROPERTY_NAME);
-                    if ((boolean) entry.get(JahiaOAuthConstants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
-                        propertiesResult.put(propertyName, responseJson.get(propertyName));
-                    } else {
-                        String propertyToRequest = (String) entry.get(JahiaOAuthConstants.PROPERTY_TO_REQUEST);
-                        if (responseJson.has(propertyToRequest)) {
-                            String pathToProperty = (String) entry.get(JahiaOAuthConstants.VALUE_PATH);
-                            if (StringUtils.startsWith(pathToProperty, "/")) {
-                                extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, pathToProperty, propertyName);
-                            } else {
-                                extractPropertyFromJSON(propertiesResult, null, responseJson.getJSONArray(propertyToRequest), pathToProperty, propertyName);
-                            }
-                        }
-                    }
-                }
+                HashMap<String, Object> propertiesResult = getPropertiesResult(connectorService, responseJson);
+
+                HashMap<String, Object> mapperResult = getMapperResults(connectorServiceName, accessToken,
+                        responseJson, propertiesResult, connectorNode.getNode(JahiaOAuthConstants.MAPPERS_NODE_NAME).getNode(mapperServiceName));
+
+                return mapperResult;
+            } catch (Exception e) {
+                logger.error(response.getBody(), e);
+                throw e;
+            }
+        } else {
+            logger.error("Did not received expected json, response body was: ", response.getBody());
+            throw new JahiaOAuthException("Did not received expected json, response body was: " + response.getBody());
+        }
+    }
+
+    @Override
+    public void extractAccessTokenAndExecuteMappers(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String token, String state) throws Exception {
+        JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(connectorServiceName);
+        OAuth20Service service = createOAuth20Service(connectorNode, connectorServiceName, state);
+        OAuth2AccessToken accessToken = service.getAccessToken(token);
+
+        ConnectorService connectorService = BundleUtils.getOsgiService(ConnectorService.class, "(" + JahiaOAuthConstants.CONNECTOR_SERVICE_NAME + "=" + connectorServiceName + ")");
+        if (connectorService == null) {
+            logger.error("Connector service was null for service name: " + connectorServiceName);
+            throw new JahiaOAuthException("Connector service was null for service name: " + connectorServiceName);
+        }
+
+        // Request all the properties available right now
+        OAuthRequest request = new OAuthRequest(Verb.GET, connectorService.getProtectedResourceUrl(), service);
+        request.addHeader("x-li-format", "json");
+        service.signRequest(accessToken, request);
+        Response response = request.send();
+
+        // if we got the properties then execute mapper
+        if (response.getCode() == HttpServletResponse.SC_OK) {
+            try {
+                JSONObject responseJson = new JSONObject(response.getBody());
+                logger.debug(responseJson.toString());
+
+                // Store in a simple map the results by properties as mapped in the connector
+                HashMap<String, Object> propertiesResult = getPropertiesResult(connectorService, responseJson);
 
                 // Get Mappers node
                 JCRNodeIteratorWrapper mappersNi = connectorNode.getNode(JahiaOAuthConstants.MAPPERS_NODE_NAME).getNodes();
@@ -124,30 +155,8 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     JCRNodeWrapper mapperNode = (JCRNodeWrapper) mappersNi.nextNode();
                     // make sure mappers is activate
                     if (mapperNode.getProperty(JahiaOAuthConstants.PROPERTY_IS_ACTIVATE).getBoolean()) {
-                        HashMap<String, Object> mapperResult = new HashMap<>();
-                        // add token to result
-                        mapperResult.put(JahiaOAuthConstants.TOKEN, token);
-                        mapperResult.put(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID, serviceName + "_" + propertiesResult.get("id"));
-
-                        JSONArray mapping = new JSONArray(mapperNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_MAPPING));
-                        for (int i = 0 ; i < mapping.length() ; i++) {
-                            JSONObject jsonObject = mapping.getJSONObject(i);
-                            JSONObject mapper = jsonObject.getJSONObject(JahiaOAuthConstants.MAPPER);
-                            JSONObject connector = jsonObject.getJSONObject(JahiaOAuthConstants.CONNECTOR);
-                            if (mapper.getBoolean(JahiaOAuthConstants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(JahiaOAuthConstants.PROPERTY_NAME))) {
-                                logger.error("JSON response was: " + responseJson.toString());
-                                throw new RepositoryException("Could not execute mapper: missing mandatory property");
-                            }
-                            if (propertiesResult.containsKey(connector.getString(JahiaOAuthConstants.PROPERTY_NAME))) {
-                                Map<String, Object> propertyInfo = new HashMap<>();
-                                propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE, propertiesResult.get(connector.getString(JahiaOAuthConstants.PROPERTY_NAME)));
-                                propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE_TYPE, connector.getString(JahiaOAuthConstants.PROPERTY_VALUE_TYPE));
-                                if (connector.has(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT)) {
-                                    propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT, connector.getString(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT));
-                                }
-                                mapperResult.put(mapper.getString(JahiaOAuthConstants.PROPERTY_NAME), propertyInfo);
-                            }
-                        }
+                        HashMap<String, Object> mapperResult = getMapperResults(connectorServiceName, accessToken,
+                                responseJson, propertiesResult, mapperNode);
 
                         jahiaOAuthCacheService.cacheMapperResults(mapperNode.getName() + "_" + state, mapperResult);
                         MapperService mapperService = BundleUtils.getOsgiService(MapperService.class,
@@ -165,6 +174,70 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
             logger.error("Did not received expected json, response body was: ", response.getBody());
             throw new JahiaOAuthException("Did not received expected json, response body was: " + response.getBody());
         }
+    }
+
+    private Map<String, Object> extractAccessTokenData(OAuth2AccessToken accessToken) {
+        Map<String, Object> tokenData = new HashMap<>();
+
+        tokenData.put(JahiaOAuthConstants.ACCESS_TOKEN, accessToken.getAccessToken());
+        tokenData.put(JahiaOAuthConstants.TOKEN_EXPIRES_IN, accessToken.getExpiresIn());
+        tokenData.put(JahiaOAuthConstants.REFRESH_TOKEN, accessToken.getRefreshToken());
+        tokenData.put(JahiaOAuthConstants.TOKEN_SCOPE, accessToken.getScope());
+        tokenData.put(JahiaOAuthConstants.TOKEN_TYPE, accessToken.getTokenType());
+
+        return tokenData;
+    }
+
+    private HashMap<String, Object> getPropertiesResult(ConnectorService connectorService, JSONObject responseJson) throws JSONException {
+        HashMap<String, Object> propertiesResult = new HashMap<>();
+        List<Map<String, Object>> properties = connectorService.getAvailableProperties();
+        for (Map<String, Object> entry : properties) {
+            String propertyName = (String) entry.get(JahiaOAuthConstants.PROPERTY_NAME);
+            if ((boolean) entry.get(JahiaOAuthConstants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
+                propertiesResult.put(propertyName, responseJson.get(propertyName));
+            } else {
+                String propertyToRequest = (String) entry.get(JahiaOAuthConstants.PROPERTY_TO_REQUEST);
+                if (responseJson.has(propertyToRequest)) {
+                    String pathToProperty = (String) entry.get(JahiaOAuthConstants.VALUE_PATH);
+                    if (StringUtils.startsWith(pathToProperty, "/")) {
+                        extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, pathToProperty, propertyName);
+                    } else {
+                        extractPropertyFromJSON(propertiesResult, null, responseJson.getJSONArray(propertyToRequest), pathToProperty, propertyName);
+                    }
+                }
+            }
+        }
+        return propertiesResult;
+    }
+
+    private HashMap<String, Object> getMapperResults(String connectorServiceName, OAuth2AccessToken accessToken,
+                                                     JSONObject responseJson, HashMap<String, Object> propertiesResult, JCRNodeWrapper mapperNode) throws JSONException, RepositoryException {
+        HashMap<String, Object> mapperResult = new HashMap<>();
+        // add token to result
+        mapperResult.put(JahiaOAuthConstants.TOKEN_DATA, extractAccessTokenData(accessToken));
+        mapperResult.put(JahiaOAuthConstants.CONNECTOR_SERVICE_NAME, connectorServiceName);
+        mapperResult.put(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID, connectorServiceName + "_" + propertiesResult.get("id"));
+
+        JSONArray mapping = new JSONArray(mapperNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_MAPPING));
+        for (int i = 0 ; i < mapping.length() ; i++) {
+            JSONObject jsonObject = mapping.getJSONObject(i);
+            JSONObject mapper = jsonObject.getJSONObject(JahiaOAuthConstants.MAPPER);
+            JSONObject connector = jsonObject.getJSONObject(JahiaOAuthConstants.CONNECTOR);
+            if (mapper.getBoolean(JahiaOAuthConstants.PROPERTY_MANDATORY) && !propertiesResult.containsKey(connector.getString(JahiaOAuthConstants.PROPERTY_NAME))) {
+                logger.error("JSON response was: " + responseJson.toString());
+                throw new RepositoryException("Could not execute mapper: missing mandatory property");
+            }
+            if (propertiesResult.containsKey(connector.getString(JahiaOAuthConstants.PROPERTY_NAME))) {
+                Map<String, Object> propertyInfo = new HashMap<>();
+                propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE, propertiesResult.get(connector.getString(JahiaOAuthConstants.PROPERTY_NAME)));
+                propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE_TYPE, connector.getString(JahiaOAuthConstants.PROPERTY_VALUE_TYPE));
+                if (connector.has(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT)) {
+                    propertyInfo.put(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT, connector.getString(JahiaOAuthConstants.PROPERTY_VALUE_FORMAT));
+                }
+                mapperResult.put(mapper.getString(JahiaOAuthConstants.PROPERTY_NAME), propertyInfo);
+            }
+        }
+        return mapperResult;
     }
 
     private void extractPropertyFromJSON(HashMap<String, Object> propertiesResult, JSONObject jsonObject, JSONArray jsonArray, String pathToProperty, String propertyName) throws JSONException {
@@ -217,8 +290,11 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         ServiceBuilder serviceBuilder = new ServiceBuilder()
                 .apiKey(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_API_KEY))
                 .apiSecret(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_API_SECRET))
-                .callback(callbackUrl)
-                .state(state);
+                .callback(callbackUrl);
+
+        if (state != null) {
+            serviceBuilder.state(state);
+        }
 
         if (connectorNode.hasProperty(JahiaOAuthConstants.PROPERTY_SCOPE) && StringUtils.isNotBlank(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_SCOPE))) {
             serviceBuilder.scope(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_SCOPE));

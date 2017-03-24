@@ -47,8 +47,8 @@ public class JahiaOAuthCacheServiceImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public void cacheMapperResults(String userSessionId, HashMap<String, Object> mapperResult) {
-        service.cacheMapperResults(userSessionId, mapperResult);
+    public void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult) {
+        service.cacheMapperResults(cacheKey, mapperResult);
     }
 
     @Override

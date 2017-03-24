@@ -27,10 +27,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Service that can be implemented by mappers
+ *
  * @author dgaillard
  */
 public interface MapperService {
+    /**
+     * Return the list of properties of the mapper
+     * @return
+     */
     List<Map<String, Object>> getProperties();
 
+    /**
+     * This method is called by JahiaOAuthService once the authentication process is done and we have the results so the mapper can use the results
+     * @param mapperResult
+     */
     void executeMapper(Map<String, Object> mapperResult);
 }
