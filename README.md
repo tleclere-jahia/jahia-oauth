@@ -27,3 +27,131 @@ Once you have downloaded at least one connector and one action module (type prov
 * Publish you site
 * Your users can now connect using open authentication
 
+### WHAT IS A CONNECTOR?
+A connector is a module that will allow your user to connect using the open authentication API like Facebook or LinkedIn.  
+You can find connectors made by Jahia:
+* [Facebook OAuth Connector](https://github.com/Jahia/facebook-oauth-connector)
+* [LinkedIn OAuth Connector](https://github.com/Jahia/linkedin-oauth-connector)
+
+### HOW TO MAKE YOUR OWN CONNECTOR?
+Create a connector is really easy however there is a few requirements:
+* you should make sure that the open authentication API you want to add is handled by Jahia OAuth you can find a complete list in the spring file [here](https://github.com/Jahia/jahia-oauth/blob/master/src/main/resources/META-INF/spring/jahia-oauth.xml)
+* the open authentication protocol must be 2.x
+* you must have an understanding of DX modules and AngularJS
+
+Once those points are OK you can start and follow the steps:
+* create a module using DX studio
+* add the dependency to Jahia OAuth
+* in the `pom.xml` add the following:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.jahia.modules</groupId>
+        <artifactId>jahia-oauth</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+                <instructions>
+                    <Import-Package>
+                        org.jahia.modules.jahiaoauth.decorator,
+                        ${jahia.plugin.projectPackageImport},
+                        *
+                    </Import-Package>
+                </instructions>
+            </configuration>
+        </plugin>
+        <plugin>
+            <artifactId>jahia-maven-plugin</artifactId>
+            <groupId>org.jahia.server</groupId>
+            <executions>
+                <execution>
+                    <id>i18n2js</id>
+                    <goals>
+                        <goal>javascript-dictionary</goal>
+                    </goals>
+                    <configuration>
+                        <dictionaryName>myConnectoroai18n</dictionaryName>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+* update the `<dictionaryName>myConnectoroai18n</dictionaryName>` by your own name
+* in the `definitions.cnd` add the 3 following nodes types
+```cnd
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+<joant = 'http://www.jahia.org/jahia/joa/nt/1.0'>
+<joamix = 'http://www.jahia.org/jahia/joa/mix/1.0'>
+
+[joant:myConnectorOAuthView] > jnt:content, joamix:oauthConnectorView
+
+[joant:myConnectorOAuthSettings] > joamix:oauthConnectorSettings
+
+[joant:myConnectorButton] > jnt:content, joamix:oauthButtonConnector
+```
+* then create a content template using the studio or directly in your repository.xml
+```xml
+<myConnector-oauth-view j:defaultTemplate="false"
+                                 j:hiddenTemplate="true"
+                                 j:invertCondition="false"
+                                 j:requireLoggedUser="false"
+                                 j:requirePrivilegedUser="false"
+                                 jcr:primaryType="jnt:contentTemplate">
+    <pagecontent jcr:primaryType="jnt:contentList">
+        <myconnectoroauthview jcr:primaryType="joant:myConnectorOAuthView"/>
+    </pagecontent>
+</myConnector-oauth-view>
+```
+* create a view for the node type `joant:myConnectorOAuthView` that will be displayed in your content template
+* create a view for the node type `joant:myConnectorButton` that will be used to display the connection button
+* create a folder `javascript` with a sub-folder `myconnector-oauth-connector` and create a js file `myconnector-controller.js` to use in the view of your component `joant:myConnectorOAuthView`
+* create 3 java files, 2 actions named `ConnectToMyConnector.java` and `MyConnectorOAuthCallback.java`, 1 implementation (mandatory for connector) `MyConnectorImpl.java` that need to implement `org.jahia.modules.jahiaoauth.service.ConnectorService`
+* enable your spring file
+* to fill those files please use the existing connectors as example  
+
+**Note:**  
+in your spring file there is a few details that you must follow:
+* the structure of the available properties
+* the connectorServiceName must be the same name as referenced in the spring file of Jahia OAuth module and it must be the same across your module (JS and Java)
+* you will need to declare your osgi service and reference the one from Jahia OAuth module
+Example with Facebook
+```xml
+<osgi:reference id="jahiaOAuthService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService" availability="mandatory"/>
+
+<osgi:service ref="FacebookConnectorImpl" interface="org.jahia.modules.jahiaoauth.service.ConnectorService">
+    <osgi:service-properties>
+        <entry key="connectorServiceName" value="FacebookApi"/>
+    </osgi:service-properties>
+</osgi:service>
+```
+* you must use a decorator on your connector node to do so you will just have to update the following
+```xml
+<bean class="org.jahia.services.content.decorator.JCRNodeDecoratorDefinition">
+    <property name="decorators">
+        <map>
+            <entry key="joant:myConnectorOAuthSettings" value="org.jahia.modules.jahiaoauth.decorator.ConnectorNode"/>
+        </map>
+    </property>
+</bean>
+```
+* you might need to update you schema in you spring file with the following
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.eclipse.org/gemini/blueprint/schema/blueprint"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
+```
