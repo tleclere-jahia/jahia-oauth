@@ -23,34 +23,14 @@
  */
 package org.jahia.modules.jahiaoauth.service;
 
-import org.jahia.services.content.JCRNodeWrapper;
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import javax.jcr.RepositoryException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author dgaillard
  */
-public interface JahiaOAuth {
-    String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String serviceName, String sessionId) throws RepositoryException;
+public interface MapperService {
+    List<Map<String, Object>> getProperties();
 
-    void extractTokenAndExecuteMappers(JCRNodeWrapper jahiaOAuthNode, String serviceName, String token, String state) throws Exception;
-
-    void addDataToOAuthBaseApiMap(Map<String, Map<String, Object>> dataToLoad, String serviceName);
-
-    void addDataToOAuthMapperPropertiesMap(List<Map<String, Object>> mapperProperties, String mapperServiceName);
-
-    JSONArray getConnectorProperties(String serviceName) throws JSONException;
-
-    JSONArray getMapperProperties(String mapperServiceName) throws JSONException;
-
-    HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId);
-
-    void updateCacheEntry(String originalSessionId, String newSessionId);
-
-    String getResultUrl(String siteUrl, Boolean isAuthenticate);
+    void executeMapper(Map<String, Object> mapperResult);
 }

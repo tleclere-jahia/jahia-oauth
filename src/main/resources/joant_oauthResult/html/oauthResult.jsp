@@ -26,23 +26,16 @@
         <template:addResources>
             <script>
                 (function() {
+                    window.opener.postMessage({authenticationIsDone: true, isAuthenticate: ${param.isAuthenticate}}, '*');
+
                     <c:if test="${param.isAuthenticate eq true}">
-                        window.onunload = function() {
-                            console.log('Parent window will be reloaded');
-                            window.opener.location.search = 'site=${renderContext.site.siteKey}';
-                        };
+                        console.log('This window will be closed in 5 sec');
 
                         var counter = 5;
-
                         setInterval(function () {
                             counter -= 1;
                             document.getElementById('count').innerHTML = counter;
                         }, 1000);
-
-                        setTimeout(function () {
-                            console.log('This window will be closed in 5 sec');
-                            window.close();
-                        }, 5000);
                     </c:if>
                 })();
             </script>

@@ -20,7 +20,7 @@
             angular.forEach(properties, function(property) {
                 propertiesAsString += '&properties=' + property;
             });
-            return $http.get(jahiaContext.baseEdit + jahiaContext.sitePath + '.manageConnectorsSettingsAction.do?serviceName=' + nodeName + propertiesAsString);
+            return $http.get(jahiaContext.baseEdit + jahiaContext.sitePath + '.manageConnectorsSettingsAction.do?connectorServiceName=' + nodeName + propertiesAsString);
         }
 
         function setConnectorData(data) {

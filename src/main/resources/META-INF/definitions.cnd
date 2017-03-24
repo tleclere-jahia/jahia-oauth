@@ -10,7 +10,7 @@
  - isActivate (boolean) indexed=no nofulltext
  - apiKey (string) hidden indexed=no nofulltext
  - apiSecret (string) hidden indexed=no nofulltext
- - callbackUrl (string) hidden indexed=no nofulltext
+ - callbackUrls (string) multiple hidden indexed=no nofulltext
  - scope (string) hidden indexed=no nofulltext
  + mappers (joant:mappers) = joant:mappers
 
