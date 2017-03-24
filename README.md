@@ -155,3 +155,108 @@ Example with Facebook
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                            http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
 ```
+
+### WHAT IS AN ACTION MODULE?
+An action module is a module that will allow you to execute some action after a user tried to register using a connector.  
+There are two kinds of action modules, provider or data mapper, provider will most likely perform the connection once a user tried to connect using a connector and a data mapper will register the user data where you need them.
+You can find action modules made by Jahia:
+* [JCR OAuth provider](https://github.com/Jahia/jcr-oauth-provider)
+* [Marketing Factory OAuth data mapper](https://github.com/Jahia/Marketing-Factory-OAuth-data-mapper)
+
+### HOW TO MAKE YOUR OWN ACTION MODULE?
+Create an action module is a bit more complex than the connector but mainly because it will be very dependant of what you want to do.  
+Here again there is a few requirements:
+* you must have an understanding of DX modules and AngularJS
+
+Once those points are OK you can start and follow the steps:
+* create a module using DX studio
+* add the dependency to Jahia OAuth
+* in the `pom.xml` add the following:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.jahia.modules</groupId>
+        <artifactId>jahia-oauth</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+                <instructions />
+            </configuration>
+        </plugin>
+        <plugin>
+            <artifactId>jahia-maven-plugin</artifactId>
+            <groupId>org.jahia.server</groupId>
+            <executions>
+                <execution>
+                    <id>i18n2js</id>
+                    <goals>
+                        <goal>javascript-dictionary</goal>
+                    </goals>
+                    <configuration>
+                        <dictionaryName>myActionoai18n</dictionaryName>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+* update the `<dictionaryName>myActionoai18n</dictionaryName>` by your own name
+* in the `definitions.cnd` add the 2 following nodes types
+```cnd
+[joant:actionOAuthView] > jnt:content, joamix:oauthMapperView
+
+[joant:actionOAuthSettings] > joamix:oauthMapperSettings
+```
+* then create a content template using the studio or directly in your repository.xml
+```xml
+<action-oauth-view j:applyOn=""
+                              j:defaultTemplate="false"
+                              j:hiddenTemplate="true"
+                              jcr:primaryType="jnt:contentTemplate">
+    <pagecontent jcr:primaryType="jnt:contentList">
+        <actionoauthview jcr:primaryType="joant:actionOAuthView"/>
+    </pagecontent>
+</action-oauth-view>
+```
+* create a view for the node type `joant:actionOAuthView` that will be displayed in your content template
+* create a folder `javascript` with a sub-folder `action-oauth-connector` and create a js file `action-controller.js` to use in the view of your component `joant:actionOAuthView`
+* on the java part you can do pretty much what you want there is an interface that can be implemented `org.jahia.modules.jahiaoauth.service.MapperService`
+* an action module type provider will most likely need a valve
+* enable your spring file
+* to fill those files please use the existing action module as example
+
+**Note:**  
+in your spring file there is a few details that you must follow:
+* the structure of the properties
+* the mapperServiceName must be the same across your module (JS and Java)
+* you will need to declare your osgi service and reference the one from Jahia OAuth module
+Example with JCR OAuth provider
+```xml
+<osgi:reference id="jahiaOAuthService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService" availability="mandatory"/>
+<osgi:reference id="jahiaOAuthCacheService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService" availability="mandatory"/>
+
+<osgi:service ref="jcrOAuthProviderMapperImpl" interface="org.jahia.modules.jahiaoauth.service.MapperService">
+    <osgi:service-properties>
+        <entry key="mapperServiceName" value="jcrOAuthProvider"/>
+    </osgi:service-properties>
+</osgi:service>
+```
+* you might need to update you schema in you spring file with the following
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.eclipse.org/gemini/blueprint/schema/blueprint"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
+```
