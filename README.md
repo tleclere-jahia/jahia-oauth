@@ -1,30 +1,30 @@
 # Jahia OAuth
 
 ### INFORMATION
-This module expose an API which allow you to manage open authentication on your site.
+This module exposes an API which allows you to manage open authentication on your site.
 
 ### MINIMAL REQUIREMENTS
 * DX 7.2.0.0
 
 ### INSTALLATION
-Download the jar and deploy it on your instance then activate the module on the site you wish to use it.  
+Download the jar and deploy it on your instance then activate the module on the site you wish to use.  
 You will also need to download connectors and actions (mappers or providers) to use this module.
 
-### WHAT THIS MODULE DOES?
+### WHAT DOES THIS MODULE DO?
 It will:
-* create a site settings panel where Connectors and Mappers will be displayed.
-* create a permission `canSetupJahiaOAuth` and add this permission to the role `site-admin`
+* Create a site settings panel where Connectors and Mappers will be displayed.
+* Create a permission `canSetupJahiaOAuth` and add this permission to the role `site-admin`
 
 ### HOW TO USE IT?
 Once you have downloaded at least one connector and one action module (type provider):
-* go to your `site > site settings > Jahia OAuth`
+* Go to your `site > site settings > Jahia OAuth`
 * In the panel you will see the list of connectors that are available for your site and if you open the card you will see the parameters to fill in order to activate and use it
 * You will need to go to the open authentication website of your connector to setup an app and get the parameters
 * Once this is done a new button will appear `Actions` and if you click on it you will access to the action modules part
 * On this part you can activate as many action modules type mapper as you which but you can only activate one provider
 * Create a mapping for the provider
 * Then in edit mode add the connection button of your connector to a page
-* Publish you site
+* Publish your site
 * Your users can now connect using open authentication
 
 ### WHAT IS A CONNECTOR?
@@ -35,14 +35,14 @@ You can find connectors made by Jahia:
 
 ### HOW TO MAKE YOUR OWN CONNECTOR?
 Create a connector is really easy however there is a few requirements:
-* you should make sure that the open authentication API you want to add is handled by Jahia OAuth you can find a complete list in the spring file [here](https://github.com/Jahia/jahia-oauth/blob/master/src/main/resources/META-INF/spring/jahia-oauth.xml)
-* the open authentication protocol must be 2.x
-* you must have an understanding of DX modules and AngularJS
+* You should make sure that the open authentication API you want to add is handled by Jahia OAuth, you can find a complete list in the spring file [here](https://github.com/Jahia/jahia-oauth/blob/master/src/main/resources/META-INF/spring/jahia-oauth.xml)
+* The open authentication protocol must be 2.x
+* You must have an understanding of DX modules and AngularJS
 
 Once those points are OK you can start and follow the steps:
-* create a module using DX studio
-* add the dependency to Jahia OAuth
-* in the `pom.xml` add the following:
+* Create a module using DX studio
+* Add the dependency to Jahia OAuth
+* In the `pom.xml` add the following:
 ```xml
 <dependencies>
     <dependency>
@@ -87,8 +87,8 @@ Once those points are OK you can start and follow the steps:
     </plugins>
 </build>
 ```
-* update the `<dictionaryName>myConnectoroai18n</dictionaryName>` by your own name
-* in the `definitions.cnd` add the 3 following nodes types
+* Update the `<dictionaryName>myConnectoroai18n</dictionaryName>` by your own name
+* In the `definitions.cnd` add the 3 following nodes types
 ```cnd
 <jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <jmix = 'http://www.jahia.org/jahia/mix/1.0'>
@@ -101,7 +101,7 @@ Once those points are OK you can start and follow the steps:
 
 [joant:myConnectorButton] > jnt:content, joamix:oauthButtonConnector
 ```
-* then create a content template using the studio or directly in your repository.xml
+* Then create a content template using the studio or directly in your repository.xml
 ```xml
 <myConnector-oauth-view j:defaultTemplate="false"
                                  j:hiddenTemplate="true"
@@ -114,18 +114,18 @@ Once those points are OK you can start and follow the steps:
     </pagecontent>
 </myConnector-oauth-view>
 ```
-* create a view for the node type `joant:myConnectorOAuthView` that will be displayed in your content template
-* create a view for the node type `joant:myConnectorButton` that will be used to display the connection button
-* create a folder `javascript` with a sub-folder `myconnector-oauth-connector` and create a js file `myconnector-controller.js` to use in the view of your component `joant:myConnectorOAuthView`
-* create 3 java files, 2 actions named `ConnectToMyConnector.java` and `MyConnectorOAuthCallback.java`, 1 implementation (mandatory for connector) `MyConnectorImpl.java` that need to implement `org.jahia.modules.jahiaoauth.service.ConnectorService`
-* enable your spring file
-* to fill those files please use the existing connectors as example  
+* Create a view for the node type `joant:myConnectorOAuthView` that will be displayed in your content template
+* Create a view for the node type `joant:myConnectorButton` that will be used to display the connection button
+* Create a folder `javascript` with a sub-folder `myconnector-oauth-connector` and create a js file `myconnector-controller.js` to use in the view of your component `joant:myConnectorOAuthView`
+* Create 3 java files, 2 actions named `ConnectToMyConnector.java` and `MyConnectorOAuthCallback.java`, 1 implementation (mandatory for connector) `MyConnectorImpl.java` that needs to implement `org.jahia.modules.jahiaoauth.service.ConnectorService`
+* Enable your spring file
+* To fill those files please use the existing connectors as example  
 
 **Note:**  
-in your spring file there is a few details that you must follow:
-* the structure of the available properties
-* the connectorServiceName must be the same name as referenced in the spring file of Jahia OAuth module and it must be the same across your module (JS and Java)
-* you will need to declare your osgi service and reference the one from Jahia OAuth module
+In your spring file there is a few details that you must follow:
+* The structure of the available properties
+* The connectorServiceName must be the same name as referenced in the spring file of Jahia OAuth module and it must be the same across your module (JS and Java)
+* You will need to declare your osgi service and reference the one from Jahia OAuth module
 Example with Facebook
 ```xml
 <osgi:reference id="jahiaOAuthService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService" availability="mandatory"/>
@@ -136,7 +136,7 @@ Example with Facebook
     </osgi:service-properties>
 </osgi:service>
 ```
-* you must use a decorator on your connector node to do so you will just have to update the following
+* You must use a decorator on your connector node to do so you will just have to update the following
 ```xml
 <bean class="org.jahia.services.content.decorator.JCRNodeDecoratorDefinition">
     <property name="decorators">
@@ -146,7 +146,7 @@ Example with Facebook
     </property>
 </bean>
 ```
-* you might need to update you schema in you spring file with the following
+* You might need to update your schema in your spring file with the following
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -158,7 +158,8 @@ Example with Facebook
 
 ### WHAT IS AN ACTION MODULE?
 An action module is a module that will allow you to execute some action after a user tried to register using a connector.  
-There are two kinds of action modules, provider or data mapper, provider will most likely perform the connection once a user tried to connect using a connector and a data mapper will register the user data where you need them.
+There are two kinds of action modules, provider or data mapper.  
+Provider will most likely perform the connection once a user tries to login using a connector. A data mapper will register the user data where you need it.
 You can find action modules made by Jahia:
 * [JCR OAuth provider](https://github.com/Jahia/jcr-oauth-provider)
 * [Marketing Factory OAuth data mapper](https://github.com/Jahia/Marketing-Factory-OAuth-data-mapper)
@@ -166,12 +167,12 @@ You can find action modules made by Jahia:
 ### HOW TO MAKE YOUR OWN ACTION MODULE?
 Create an action module is a bit more complex than the connector but mainly because it will be very dependant of what you want to do.  
 Here again there is a few requirements:
-* you must have an understanding of DX modules and AngularJS
+* You must have an understanding of DX modules and AngularJS
 
 Once those points are OK you can start and follow the steps:
-* create a module using DX studio
-* add the dependency to Jahia OAuth
-* in the `pom.xml` add the following:
+* Create a module using DX studio
+* Add the dependency to Jahia OAuth
+* In the `pom.xml` add the following:
 ```xml
 <dependencies>
     <dependency>
@@ -210,14 +211,14 @@ Once those points are OK you can start and follow the steps:
     </plugins>
 </build>
 ```
-* update the `<dictionaryName>myActionoai18n</dictionaryName>` by your own name
-* in the `definitions.cnd` add the 2 following nodes types
+* Update the `<dictionaryName>myActionoai18n</dictionaryName>` by your own name
+* In the `definitions.cnd` add the 2 following nodes types
 ```cnd
 [joant:actionOAuthView] > jnt:content, joamix:oauthMapperView
 
 [joant:actionOAuthSettings] > joamix:oauthMapperSettings
 ```
-* then create a content template using the studio or directly in your repository.xml
+* Then create a content template using the studio or directly in your repository.xml
 ```xml
 <action-oauth-view j:applyOn=""
                               j:defaultTemplate="false"
@@ -228,18 +229,18 @@ Once those points are OK you can start and follow the steps:
     </pagecontent>
 </action-oauth-view>
 ```
-* create a view for the node type `joant:actionOAuthView` that will be displayed in your content template
-* create a folder `javascript` with a sub-folder `action-oauth-connector` and create a js file `action-controller.js` to use in the view of your component `joant:actionOAuthView`
-* on the java part you can do pretty much what you want there is an interface that can be implemented `org.jahia.modules.jahiaoauth.service.MapperService`
-* an action module type provider will most likely need a valve
-* enable your spring file
-* to fill those files please use the existing action module as example
+* Create a view for the node type `joant:actionOAuthView` that will be displayed in your content template
+* Create a folder `javascript` with a sub-folder `action-oauth-connector` and create a js file `action-controller.js` to use in the view of your component `joant:actionOAuthView`
+* On the java part you can do pretty much what you want there is an interface that can be implemented `org.jahia.modules.jahiaoauth.service.MapperService`
+* An action module type provider will most likely need a valve
+* Enable your spring file
+* To fill those files please use the existing action module as example
 
 **Note:**  
-in your spring file there is a few details that you must follow:
-* the structure of the properties
-* the mapperServiceName must be the same across your module (JS and Java)
-* you will need to declare your osgi service and reference the one from Jahia OAuth module
+In your spring file there is a few details that you must follow:
+* The structure of the properties
+* The mapperServiceName must be the same across your module (JS and Java)
+* You will need to declare your osgi service and reference the one from Jahia OAuth module
 Example with JCR OAuth provider
 ```xml
 <osgi:reference id="jahiaOAuthService" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService" availability="mandatory"/>
@@ -251,7 +252,7 @@ Example with JCR OAuth provider
     </osgi:service-properties>
 </osgi:service>
 ```
-* you might need to update you schema in you spring file with the following
+* You might need to update your schema in your spring file with the following
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
