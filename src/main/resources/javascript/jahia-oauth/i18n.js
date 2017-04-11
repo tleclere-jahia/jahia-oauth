@@ -45,37 +45,37 @@
         }
     }
 
-    angular.module('i18n').directive('messageKey', messageKey);
+    angular.module('i18n').directive('messageKey', messageKeyDirective);
 
-    translate.$inject = ['i18nService'];
+    messageKeyDirective.$inject = ['i18nService'];
 
-    function messageKey(i18nService) {
+    function messageKeyDirective(i18nService) {
         return {
             restrict: 'A',
-            link: function ($scope, $element, $attrs) {
+            link: function (scope, element, attrs) {
                 var i18n;
-                if(!$attrs.messageParams){
-                    i18n = i18nService.message($attrs.messageKey);
+                if(!attrs.messageParams){
+                    i18n = i18nService.message(attrs.messageKey);
                 } else {
-                    i18n = i18nService.format($attrs.messageKey, $attrs.messageParams);
+                    i18n = i18nService.format(attrs.messageKey, attrs.messageParams);
                 }
 
-                if($attrs.messageAttr) {
+                if(attrs.messageAttr) {
                     // store the i18n in the specified element attr
-                    $element.attr($attrs.messageAttr, i18n);
+                    element.attr(attrs.messageAttr, i18n);
                 } else {
                     // set the i18n as element text
-                    $element.text(i18n);
+                    element.text(i18n);
                 }
             }
         };
     }
 
-    angular.module('i18n').filter('translate', translate);
+    angular.module('i18n').filter('translate', translateFilter);
 
-    translate.$inject = ['i18nService'];
+    translateFilter.$inject = ['i18nService'];
 
-    function translate(i18nService) {
+    function translateFilter(i18nService) {
         return function(input) {
             return i18nService.message(input);
         };
