@@ -34,7 +34,7 @@
 
     <template:area path="pagecontent"/>
 
-    <template:addResources type="css" resources="jahia-oauth/vendor/fontRoboto.css"/>
+    <template:addResources type="css" resources="jahia-oauth/vendor/fontNunitoSans.css"/>
     <template:addResources type="css" resources="jahia-oauth/vendor/material-icons.css"/>
     <template:addResources type="css" resources="jahia-oauth/resultStyle.css"/>
 

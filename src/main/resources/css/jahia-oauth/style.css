@@ -1,3 +1,23 @@
+html, body {
+    position: relative;
+}
+
+html,
+body,
+button,
+select,
+html,
+textarea,
+input,
+.md-chips {
+    font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+}
+
+
+md-bottom-sheet .md-subheader {
+    font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+}
+
 div[jahiatype=mainmodule], div[jahiatype=mainmodule] div.clearfix {
     height: 100%;
 }
