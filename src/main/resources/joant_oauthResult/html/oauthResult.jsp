@@ -29,9 +29,9 @@
                     window.opener.postMessage({authenticationIsDone: true, isAuthenticate: ${param.isAuthenticate}}, '*');
 
                     <c:if test="${param.isAuthenticate eq true}">
-                        console.log('This window will be closed in 5 sec');
+                        console.log('This window will be closed in 3 sec');
 
-                        var counter = 5;
+                        var counter = 3;
                         setInterval(function () {
                             counter -= 1;
                             document.getElementById('count').innerHTML = counter;
