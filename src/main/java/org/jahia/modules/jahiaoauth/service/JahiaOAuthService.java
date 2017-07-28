@@ -69,6 +69,17 @@ public interface JahiaOAuthService {
     String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId) throws RepositoryException;
 
     /**
+     * This method will get the authorization URL so a connector can display the authentication popup to the user
+     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
+     * @param connectorServiceName String the service name of the connector
+     * @param sessionId String user session ID to be able to identify the token on the callback the session ID of the user is added to the request
+     * @param additionalParams additional parameter required to get the authorization URL
+     * @return String authorization URL
+     * @throws RepositoryException
+     */
+    String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId, Map<String, String> additionalParams) throws RepositoryException;
+
+    /**
      * This method will extract the token and execute the mappers action
      * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
      * @param connectorServiceName String the service name of the connector

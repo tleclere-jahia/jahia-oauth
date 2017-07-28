@@ -45,10 +45,7 @@ package org.jahia.modules.jahiaoauth.impl;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.BaseApi;
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.jahiaoauth.service.*;
@@ -77,10 +74,15 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
 
     @Override
     public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId) throws RepositoryException {
+        return getAuthorizationUrl(jahiaOAuthNode, connectorServiceName, sessionId, null);
+    }
+
+    @Override
+    public String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId, Map<String, String> additionalParams) throws RepositoryException {
         JCRNodeWrapper connectorNode = jahiaOAuthNode.getNode(connectorServiceName);
         OAuth20Service service = createOAuth20Service(connectorNode, connectorServiceName, sessionId);
 
-        return service.getAuthorizationUrl();
+        return service.getAuthorizationUrl(additionalParams);
     }
 
     @Override
@@ -114,10 +116,10 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         }
 
         // Request all the properties available right now
-        OAuthRequest request = new OAuthRequest(Verb.GET, connectorService.getProtectedResourceUrl(), service);
+        OAuthRequest request = new OAuthRequest(Verb.GET, connectorService.getProtectedResourceUrl());
         request.addHeader("x-li-format", "json");
         service.signRequest(accessToken, request);
-        Response response = request.send();
+        Response response = service.execute(request);
 
         // if we got the properties then execute mapper
         if (response.getCode() == HttpServletResponse.SC_OK) {
@@ -137,8 +139,8 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                 throw e;
             }
         } else {
-            logger.error("Did not received expected json, response body was: ", response.getBody());
-            throw new JahiaOAuthException("Did not received expected json, response body was: " + response.getBody());
+            logger.error("Did not received expected response, response code: " + response.getCode() + ", response message: " + response.getMessage() + " response body was: ", response.getBody());
+            throw new JahiaOAuthException("Did not received expected response, response code: " + response.getCode() + ", response message: " + response.getMessage() + " response body was: " + response.getBody());
         }
     }
 
@@ -155,10 +157,10 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         }
 
         // Request all the properties available right now
-        OAuthRequest request = new OAuthRequest(Verb.GET, connectorService.getProtectedResourceUrl(), service);
+        OAuthRequest request = new OAuthRequest(Verb.GET, connectorService.getProtectedResourceUrl());
         request.addHeader("x-li-format", "json");
         service.signRequest(accessToken, request);
-        Response response = request.send();
+        Response response = service.execute(request);
 
         // if we got the properties then execute mapper
         if (response.getCode() == HttpServletResponse.SC_OK) {
@@ -187,12 +189,12 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     }
                 }
             } catch (Exception e) {
-                logger.error(response.getBody(), e);
+                logger.error("Did not received expected json, response body was: ", response.getBody());
                 throw e;
             }
         } else {
-            logger.error("Did not received expected json, response body was: ", response.getBody());
-            throw new JahiaOAuthException("Did not received expected json, response body was: " + response.getBody());
+            logger.error("Did not received expected response, response code: " + response.getCode() + ", response message: " + response.getMessage() + " response body was: ", response.getBody());
+            throw new JahiaOAuthException("Did not received expected response, response code: " + response.getCode() + ", response message: " + response.getMessage() + " response body was: " + response.getBody());
         }
     }
 
@@ -307,8 +309,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         }
         callbackUrl = callbackUrls.get(new Random().nextInt(callbackUrls.size()));
 
-        ServiceBuilder serviceBuilder = new ServiceBuilder()
-                .apiKey(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_API_KEY))
+        ServiceBuilder serviceBuilder = new ServiceBuilder(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_API_KEY))
                 .apiSecret(connectorNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_API_SECRET))
                 .callback(callbackUrl);
 
