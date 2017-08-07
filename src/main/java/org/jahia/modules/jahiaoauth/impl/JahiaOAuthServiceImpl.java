@@ -135,7 +135,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
 
                 return mapperResult;
             } catch (Exception e) {
-                logger.error(response.getBody(), e);
+                logger.error("Did not received expected json, response message was: " + response.getMessage() + " and response body was: " + response.getBody());
                 throw e;
             }
         } else {
@@ -189,7 +189,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Did not received expected json, response body was: ", response.getBody());
+                logger.error("Did not received expected json, response message was: " + response.getMessage() + " and response body was: " + response.getBody());
                 throw e;
             }
         } else {
