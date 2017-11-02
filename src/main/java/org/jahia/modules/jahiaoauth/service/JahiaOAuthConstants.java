@@ -61,6 +61,7 @@ public class JahiaOAuthConstants {
     public static final String PROPERTY_MAPPING = "mapping";
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_MANDATORY = "mandatory";
+    public static final String PROPERTY_SITE_KEY = "siteKey";
     public static final String PROPERTY_VALUE_FORMAT = "valueFormat";
     public static final String PROPERTY_VALUE_TYPE = "valueType";
     public static final String PROPERTY_VALUE = "value";
