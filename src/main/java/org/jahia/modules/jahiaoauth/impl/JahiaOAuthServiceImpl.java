@@ -179,7 +179,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     if (mapperNode.getProperty(JahiaOAuthConstants.PROPERTY_IS_ACTIVATE).getBoolean()) {
                         HashMap<String, Object> mapperResult = getMapperResults(connectorServiceName, accessToken,
                                 responseJson, propertiesResult, mapperNode);
-
+                        
                         jahiaOAuthCacheService.cacheMapperResults(mapperNode.getName() + "_" + state, mapperResult);
                         MapperService mapperService = BundleUtils.getOsgiService(MapperService.class,
                                 "(" + JahiaOAuthConstants.MAPPER_SERVICE_NAME + "=" + mapperNode.getName() + ")");
@@ -239,7 +239,8 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         mapperResult.put(JahiaOAuthConstants.TOKEN_DATA, extractAccessTokenData(accessToken));
         mapperResult.put(JahiaOAuthConstants.CONNECTOR_SERVICE_NAME, connectorServiceName);
         mapperResult.put(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID, connectorServiceName + "_" + propertiesResult.get("id"));
-
+        mapperResult.put(JahiaOAuthConstants.PROPERTY_SITE_KEY, mapperNode.getResolveSite().getSiteKey());
+        
         JSONArray mapping = new JSONArray(mapperNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_MAPPING));
         for (int i = 0 ; i < mapping.length() ; i++) {
             JSONObject jsonObject = mapping.getJSONObject(i);
