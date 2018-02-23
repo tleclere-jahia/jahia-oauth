@@ -7,7 +7,7 @@
 
                                     http://www.jahia.com
 
-        Copyright (C) 2002-2017 Jahia Solutions Group SA. All rights reserved.
+        Copyright (C) 2002-2018 Jahia Solutions Group SA. All rights reserved.
 
         THIS FILE IS AVAILABLE UNDER TWO DIFFERENT LICENSES:
         1/GPL OR 2/JSEL
@@ -62,8 +62,8 @@
         <connection>scm:git:git@github.com:Jahia/jahia-oauth.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/jahia-oauth.git</developerConnection>
         <url>https://github.com/Jahia/jahia-oauth</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <export-package>org.jahia.modules.jahiaoauth.service,org.jahia.modules.jahiaoauth.decorator</export-package>
