@@ -217,14 +217,18 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
             String propertyName = (String) entry.get(JahiaOAuthConstants.PROPERTY_NAME);
             if ((boolean) entry.get(JahiaOAuthConstants.CAN_BE_REQUESTED) && responseJson.has(propertyName)) {
                 propertiesResult.put(propertyName, responseJson.get(propertyName));
-            } else {
+            } else if (entry.containsKey(JahiaOAuthConstants.PROPERTY_TO_REQUEST)) {
                 String propertyToRequest = (String) entry.get(JahiaOAuthConstants.PROPERTY_TO_REQUEST);
                 if (responseJson.has(propertyToRequest)) {
-                    String pathToProperty = (String) entry.get(JahiaOAuthConstants.VALUE_PATH);
-                    if (StringUtils.startsWith(pathToProperty, "/")) {
-                        extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, pathToProperty, propertyName);
+                    if (entry.containsKey(JahiaOAuthConstants.VALUE_PATH)) {
+                        String pathToProperty = (String) entry.get(JahiaOAuthConstants.VALUE_PATH);
+                        if (StringUtils.startsWith(pathToProperty, "/")) {
+                            extractPropertyFromJSON(propertiesResult, responseJson.getJSONObject(propertyToRequest), null, pathToProperty, propertyName);
+                        } else {
+                            extractPropertyFromJSON(propertiesResult, null, responseJson.getJSONArray(propertyToRequest), pathToProperty, propertyName);
+                        }
                     } else {
-                        extractPropertyFromJSON(propertiesResult, null, responseJson.getJSONArray(propertyToRequest), pathToProperty, propertyName);
+                        propertiesResult.put(propertyName, responseJson.get(propertyToRequest));
                     }
                 }
             }
