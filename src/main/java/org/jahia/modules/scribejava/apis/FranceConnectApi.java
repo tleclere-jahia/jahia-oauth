@@ -41,45 +41,49 @@
  *     If you are unsure which license is appropriate for your use,
  *     please contact the sales department at sales@jahia.com.
  */
-package org.jahia.modules.jahiaoauth.service;
+package org.jahia.modules.scribejava.apis;
 
-import java.util.List;
-import java.util.Map;
+import com.github.scribejava.core.builder.api.DefaultApi20;
+import org.jahia.modules.jahiaoauth.service.ConnectorService;
+import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
+import org.jahia.osgi.BundleUtils;
 
-/**
- * Service to be implemented by a connector to allow Jahia OAuth to work
- *
- * @author dgaillard
- */
-public interface ConnectorService {
-    /**
-     * This method get the connector service name
-     * @return String connector service name
-     */
-    String getServiceName();
+public class FranceConnectApi extends DefaultApi20 {
 
-    /**
-     * This method return the url that will allow Jahia OAuth to get the user data
-     * @return String url to request to get the user data
-     */
-    String getProtectedResourceUrl();
+    protected FranceConnectApi() {
+    }
 
-    /**
-     * This method get the list of available properties with this connector
-     * @return List the list of available properties
-     */
-    List<Map<String, Object>> getAvailableProperties();
+    private static class InstanceHolder {
+        private static final FranceConnectApi INSTANCE = new FranceConnectApi();
+    }
 
-    /**
-     * Nested interface implemented by FranceConnect connector to allow Jahia OAuth
-     * to work with the right mode
-     */
-    interface DevMode {
-        /**
-         * This method return a boolean value that will allow to use the right URL
-         *
-         * @return boolean value
-         */
-        boolean isDevMode();
+    public static FranceConnectApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    @Override
+    public String getAccessTokenEndpoint() {
+        ConnectorService.DevMode connectorService = (ConnectorService.DevMode) BundleUtils.getOsgiService(
+                ConnectorService.class,
+                "(" + JahiaOAuthConstants.CONNECTOR_SERVICE_NAME + "=FranceConnectApi)"
+        );
+        String result = "https://app.franceconnect.gouv.fr/api/v1/token";
+        if (connectorService.isDevMode()) {
+            result = "https://fcp.integ01.dev-franceconnect.fr/api/v1/token";
+        }
+        return result;
+    }
+
+    @Override
+    protected String getAuthorizationBaseUrl() {
+        ConnectorService.DevMode connectorService = (ConnectorService.DevMode) BundleUtils.getOsgiService(
+                ConnectorService.class,
+                "(" + JahiaOAuthConstants.CONNECTOR_SERVICE_NAME + "=FranceConnectApi)"
+        );
+        String result = "https://app.franceconnect.gouv.fr/api/v1/authorize";
+        if (connectorService.isDevMode()) {
+            result = "https://fcp.integ01.dev-franceconnect.fr/api/v1/authorize";
+        }
+        return result;
     }
 }

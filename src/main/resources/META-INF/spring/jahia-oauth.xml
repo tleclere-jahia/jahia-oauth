@@ -77,6 +77,9 @@
                 <entry key="ImgurApi">
                     <bean class="com.github.scribejava.apis.ImgurApi"/>
                 </entry>
+                <entry key="FranceConnectApi">
+                    <bean class="org.jahia.modules.scribejava.apis.FranceConnectApi"/>
+                </entry>
             </map>
         </property>
         <property name="jahiaOAuthCacheService" ref="jahiaOAuthCacheServiceImpl"/>
