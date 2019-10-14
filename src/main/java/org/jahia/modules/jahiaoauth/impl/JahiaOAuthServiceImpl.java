@@ -179,7 +179,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     if (mapperNode.getProperty(JahiaOAuthConstants.PROPERTY_IS_ACTIVATE).getBoolean()) {
                         HashMap<String, Object> mapperResult = getMapperResults(connectorServiceName, accessToken,
                                 responseJson, propertiesResult, mapperNode);
-                        
+
                         jahiaOAuthCacheService.cacheMapperResults(mapperNode.getName() + "_" + state, mapperResult);
                         MapperService mapperService = BundleUtils.getOsgiService(MapperService.class,
                                 "(" + JahiaOAuthConstants.MAPPER_SERVICE_NAME + "=" + mapperNode.getName() + ")");
@@ -244,9 +244,9 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         mapperResult.put(JahiaOAuthConstants.CONNECTOR_SERVICE_NAME, connectorServiceName);
         mapperResult.put(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID, connectorServiceName + "_" + propertiesResult.get("id"));
         mapperResult.put(JahiaOAuthConstants.PROPERTY_SITE_KEY, mapperNode.getResolveSite().getSiteKey());
-        
+
         JSONArray mapping = new JSONArray(mapperNode.getPropertyAsString(JahiaOAuthConstants.PROPERTY_MAPPING));
-        for (int i = 0 ; i < mapping.length() ; i++) {
+        for (int i = 0; i < mapping.length(); i++) {
             JSONObject jsonObject = mapping.getJSONObject(i);
             JSONObject mapper = jsonObject.getJSONObject(JahiaOAuthConstants.MAPPER);
             JSONObject connector = jsonObject.getJSONObject(JahiaOAuthConstants.CONNECTOR);
@@ -307,7 +307,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
     }
 
     private OAuth20Service createOAuth20Service(JCRNodeWrapper connectorNode, String serviceName, String state) throws RepositoryException {
-        List <String> callbackUrls = new ArrayList<>();
+        List<String> callbackUrls = new ArrayList<>();
         String callbackUrl;
         for (JCRValueWrapper wrapper : connectorNode.getProperty(JahiaOAuthConstants.PROPERTY_CALLBACK_URLS).getValues()) {
             callbackUrls.add(wrapper.getString());
@@ -329,6 +329,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         return serviceBuilder.build(oAuthBase20ApiMap.get(serviceName));
     }
 
+    @Override
     public void setoAuthBase20ApiMap(Map<String, BaseApi<? extends OAuth20Service>> oAuthBase20ApiMap) {
         this.oAuthBase20ApiMap = oAuthBase20ApiMap;
     }

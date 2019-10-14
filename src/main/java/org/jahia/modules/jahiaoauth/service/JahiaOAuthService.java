@@ -43,13 +43,12 @@
  */
 package org.jahia.modules.jahiaoauth.service;
 
+import com.github.scribejava.core.builder.api.BaseApi;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import org.jahia.services.content.JCRNodeWrapper;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import javax.jcr.RepositoryException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -125,4 +124,11 @@ public interface JahiaOAuthService {
      * @throws Exception
      */
     Map<String, Object> requestUserData(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String mapperServiceName, String refreshToken) throws Exception;
+
+    /**
+     * This method allow to set oAuthBase20ApiMap property
+     *
+     * @param oAuthBase20ApiMap Map contains key value of scribejava API
+     */
+    void setoAuthBase20ApiMap(Map<String, BaseApi<? extends OAuth20Service>> oAuthBase20ApiMap);
 }
