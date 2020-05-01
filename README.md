@@ -4,7 +4,7 @@
 This module exposes an API which allows you to manage open authentication on your site.
 
 ### MINIMAL REQUIREMENTS
-* DX 7.2.0.0
+* Jahia 8.0.0.0
 
 ### INSTALLATION
 Download the jar and deploy it on your instance then activate the module on the site you wish to use.  
