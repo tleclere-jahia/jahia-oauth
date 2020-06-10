@@ -47,41 +47,27 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.commons.lang.StringUtils;
-import org.jahia.bin.Jahia;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 import java.util.HashMap;
 
 /**
  * @author dgaillard
  */
-@Component( name = "org.jahia.module.jahiaoauth.impl.cache.ClusteredCacheImpl",
-            service = JahiaOAuthCacheService.class,
-            property = {
-                Constants.SERVICE_PID + "=org.jahia.module.jahiaoauth.impl.cache.ClusteredCacheImpl",
-                Constants.SERVICE_DESCRIPTION + "=Clustered cache service implementation using Hazelcast",
-                Constants.SERVICE_VENDOR + "=" + Jahia.VENDOR_NAME,
-                "clustered=true"
-            },
-            immediate = true)
 public class ClusteredCacheImpl implements JahiaOAuthCacheService {
     private HazelcastInstance hazelcastInstance;
 
-    @Activate
-    protected void activate() throws Exception {
+    public ClusteredCacheImpl(BundleContext bundleContext) {
+        ServiceReference sr = bundleContext.getServiceReference( "com.hazelcast.core.HazelcastInstance");
+        if (sr != null) {
+            this.hazelcastInstance = (HazelcastInstance) bundleContext.getService(sr);
+        }
         Config config = hazelcastInstance.getConfig();
         MapConfig mapConfig = new MapConfig(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).setTimeToLiveSeconds(180);
         config.addMapConfig(mapConfig);
-    }
-
-    @Reference(service = HazelcastInstance.class)
-    protected void bindHazelcastService(HazelcastInstance hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
     }
 
     @Override

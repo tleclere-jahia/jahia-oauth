@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:osgi="http://www.eclipse.org/gemini/blueprint/schema/blueprint"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                           http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="jahiaOAuthServiceImpl" class="org.jahia.modules.jahiaoauth.impl.JahiaOAuthServiceImpl">
         <property name="oAuthBase20ApiMap">
@@ -36,7 +34,7 @@
                     <bean class="com.github.scribejava.apis.KaixinApi20"/>
                 </entry>
                 <!--<entry key="SalesforceApi">-->
-                    <!--<bean class="com.github.scribejava.apis.SalesforceApi"/>-->
+                <!--<bean class="com.github.scribejava.apis.SalesforceApi"/>-->
                 <!--</entry>-->
                 <entry key="ViadeoApi">
                     <bean class="com.github.scribejava.apis.ViadeoApi"/>
@@ -85,8 +83,12 @@
         <property name="jahiaOAuthCacheService" ref="jahiaOAuthCacheServiceImpl"/>
     </bean>
 
-    <osgi:service id="JahiaOAuthServiceOsgi" ref="jahiaOAuthServiceImpl" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService"/>
-    <osgi:service id="JahiaOAuthCacheServiceOsgi" ref="jahiaOAuthCacheServiceImpl" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService"/>
+    <reference id="settingsBean" interface="org.jahia.api.settings.SettingsBean"/>
+    <reference id="ehCacheProvider" interface="org.jahia.services.cache.CacheProvider"/>
+    <reference id="JahiaTemplateManagerService" interface="org.jahia.api.templates.JahiaTemplateManagerService"/>
+
+    <service id="JahiaOAuthServiceOsgi" ref="jahiaOAuthServiceImpl" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthService"/>
+    <service id="JahiaOAuthCacheServiceOsgi" ref="jahiaOAuthCacheServiceImpl" interface="org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService"/>
 
     <bean class="org.jahia.modules.jahiaoauth.action.ManageConnectorsSettings">
         <property name="name" value="manageConnectorsSettingsAction"/>
@@ -106,9 +108,14 @@
     <bean id="jahiaOAuthCacheServiceImpl" class="org.jahia.modules.jahiaoauth.impl.cache.JahiaOAuthCacheServiceImpl" init-method="initService">
         <property name="defaultCacheService" ref="joaEHCacheManager"/>
         <property name="settingsBean" ref="settingsBean"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <bean class="org.jahia.modules.jahiaoauth.tag.JahiaOAuthFunctions">
         <property name="jahiaTemplateManagerService" ref="JahiaTemplateManagerService"/>
     </bean>
-</beans>
+
+
+
+
+</blueprint>

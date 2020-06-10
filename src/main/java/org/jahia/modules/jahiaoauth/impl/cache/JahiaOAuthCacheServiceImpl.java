@@ -43,9 +43,9 @@
  */
 package org.jahia.modules.jahiaoauth.impl.cache;
 
+import org.jahia.api.settings.SettingsBean;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService;
-import org.jahia.osgi.BundleUtils;
-import org.jahia.settings.SettingsBean;
+import org.osgi.framework.BundleContext;
 
 import java.util.HashMap;
 
@@ -56,13 +56,13 @@ public class JahiaOAuthCacheServiceImpl implements JahiaOAuthCacheService {
     private JahiaOAuthCacheService defaultCacheService;
     private JahiaOAuthCacheService service;
     private SettingsBean settingsBean;
+    private BundleContext bundleContext;
 
     public void initService() {
-        service = settingsBean.isClusterActivated() ?
-                BundleUtils.getOsgiService(JahiaOAuthCacheService.class, "(clustered=true)") : null;
-
-        if (service == null) {
-         service = defaultCacheService;
+        if (settingsBean.isClusterActivated()) {
+            service = new ClusteredCacheImpl(bundleContext);
+        } else {
+            service = defaultCacheService;
         }
     }
 
@@ -87,5 +87,9 @@ public class JahiaOAuthCacheServiceImpl implements JahiaOAuthCacheService {
 
     public void setSettingsBean(SettingsBean settingsBean) {
         this.settingsBean = settingsBean;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }
