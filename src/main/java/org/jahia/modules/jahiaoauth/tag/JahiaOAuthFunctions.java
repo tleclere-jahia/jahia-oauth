@@ -44,9 +44,9 @@
 package org.jahia.modules.jahiaoauth.tag;
 
 import org.apache.commons.lang.StringUtils;
+import org.jahia.api.templates.JahiaTemplateManagerService;
 import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.exceptions.JahiaException;
-import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class JahiaOAuthFunctions {
         List<JahiaTemplatesPackage> jahiaTemplatesPackageList = jahiaTemplateManagerService.getInstalledModulesForSite(siteKey, false, true,false);
 
         for (JahiaTemplatesPackage jahiaTemplatesPackage : jahiaTemplatesPackageList) {
-            if (StringUtils.startsWith(path, jahiaTemplatesPackage.getRootFolderPath() + "/" + jahiaTemplatesPackage.getVersion().toString())) {
+            if (StringUtils.startsWith(path, jahiaTemplatesPackage.getIdWithVersion())) {
                 return true;
             }
         }

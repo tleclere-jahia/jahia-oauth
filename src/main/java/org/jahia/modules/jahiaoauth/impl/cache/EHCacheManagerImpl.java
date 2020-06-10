@@ -52,9 +52,8 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 import org.jahia.services.cache.CacheHelper;
+import org.jahia.services.cache.CacheProvider;
 import org.jahia.services.cache.ModuleClassLoaderAwareCacheEntry;
-import org.jahia.services.cache.ehcache.EhCacheProvider;
-
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,11 +62,11 @@ import java.util.List;
  * @author dgaillard
  */
 public class EHCacheManagerImpl implements JahiaOAuthCacheService {
-    private EhCacheProvider ehCacheProvider;
+    private CacheProvider ehCacheProvider;
     private CacheManager cacheManager;
     private Ehcache userCache;
 
-    protected void init() {
+    public void init() {
         cacheManager = ehCacheProvider.getCacheManager();
         userCache = cacheManager.getCache(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE);
 
@@ -117,7 +116,7 @@ public class EHCacheManagerImpl implements JahiaOAuthCacheService {
         }
     }
 
-    public void setEhCacheProvider(EhCacheProvider ehCacheProvider) {
+    public void setEhCacheProvider(CacheProvider ehCacheProvider) {
         this.ehCacheProvider = ehCacheProvider;
     }
 }
