@@ -92,7 +92,9 @@ public interface JahiaOAuthService {
      * @param sessionId String user session ID
      * @return HashMap of the results
      */
-    HashMap<String, Object> getMapperResults(String mapperServiceName, String sessionId);
+    Map<String, Object> getMapperResults(String mapperServiceName, String sessionId);
+
+    void executeMapper(String state, String mapperName, Map<String, Object> mapperResult);
 
     /**
      * This method will return the URL of the result page so the user can be inform of the succes or not of his authentication

@@ -43,7 +43,7 @@
  */
 package org.jahia.modules.jahiaoauth.service;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Service to be implemented by Mapper that need to access the data in the cache
@@ -56,14 +56,21 @@ public interface JahiaOAuthCacheService {
      * @param cacheKey String the cache key built using the user session ID and the mapper service name
      * @param mapperResult HashMap that contains the result for the mapper
      */
-    void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult);
+    void cacheMapperResults(String cacheKey, Map<String, Object> mapperResult);
 
     /**
      * This method get the results of the mapper in the cache
      * @param cacheKey String the cache key built using the user session ID and the mapper service name
      * @return HashMap that contains the result for the mapper
      */
-    HashMap<String, Object> getMapperResultsCacheEntry(String cacheKey);
+    Map<String, Object> getMapperResultsCacheEntry(String cacheKey);
+
+    /**
+     * This method get the results of the mapper in the cache
+     * @param cacheKey String the cache key built using the user session ID and the mapper service name
+     * @return HashMap that contains the result for the mapper
+     */
+    Map<String, Map<String, Object>> getMapperResultsForSession(String sessionId);
 
     /**
      * This method will update all the cache entries that contains the original session ID with the new session ID

@@ -50,7 +50,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author dgaillard
@@ -94,13 +94,18 @@ public class JahiaOAuthCacheServiceImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult) {
+    public void cacheMapperResults(String cacheKey, Map<String, Object> mapperResult) {
         service.cacheMapperResults(cacheKey, mapperResult);
     }
 
     @Override
-    public HashMap<String, Object> getMapperResultsCacheEntry(String cacheKey) {
+    public Map<String, Object> getMapperResultsCacheEntry(String cacheKey) {
         return service.getMapperResultsCacheEntry(cacheKey);
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> getMapperResultsForSession(String sessionId) {
+        return service.getMapperResultsForSession(sessionId);
     }
 
     @Override

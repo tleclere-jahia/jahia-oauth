@@ -47,7 +47,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.services.content.*;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRPropertyWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
@@ -118,7 +121,7 @@ public class ManageConnectorsSettings extends Action {
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            HashMap<String, Object> properties = new ObjectMapper().readValue(parameters.get(JahiaOAuthConstants.PROPERTIES).get(0), HashMap.class);
+            Map<String, Object> properties = new ObjectMapper().readValue(parameters.get(JahiaOAuthConstants.PROPERTIES).get(0), HashMap.class);
             if (!properties.containsKey(JahiaOAuthConstants.PROPERTY_API_KEY)
                     || !properties.containsKey(JahiaOAuthConstants.PROPERTY_API_SECRET)
                     || !properties.containsKey(JahiaOAuthConstants.PROPERTY_CALLBACK_URLS)
