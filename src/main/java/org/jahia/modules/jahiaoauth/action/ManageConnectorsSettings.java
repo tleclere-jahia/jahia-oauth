@@ -56,8 +56,6 @@ import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
@@ -70,8 +68,6 @@ import java.util.Map;
  * @author dgaillard
  */
 public class ManageConnectorsSettings extends Action {
-    private static final Logger logger = LoggerFactory.getLogger(ManageConnectorsSettings.class);
-
     @Override
     public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource,
                                   JCRSessionWrapper session, Map<String, List<String>> parameters,

@@ -78,19 +78,19 @@ public class SSOValve extends BaseAuthValve {
             if (!userNode.isAccountLocked()) {
                 ok = true;
             } else {
-                logger.warn("Login failed: account for user " + userNode.getName() + " is locked.");
+                logger.warn("Login failed: account for user {} is locked.", userNode.getName() );
                 request.setAttribute(VALVE_RESULT, "account_locked");
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Login failed. Unknown username " + userId);
+                logger.debug("Login failed. Unknown username {}", userId);
             }
             request.setAttribute(VALVE_RESULT, "unknown_user");
         }
 
         if (ok) {
             if (logger.isDebugEnabled()) {
-                logger.debug("User " + userNode + " logged in.");
+                logger.debug("User {} logged in.", userNode);
             }
 
             // if there are any attributes to conserve between session, let's copy them into a map first

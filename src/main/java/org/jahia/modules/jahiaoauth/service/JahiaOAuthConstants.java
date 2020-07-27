@@ -91,5 +91,6 @@ public class JahiaOAuthConstants {
     public static final String OAUTH_CONNECTOR_SETTINGS_NODE_TYPE = "joamix:oauthConnectorSettings";
     public static final String MAPPERS_NODE_TYPE = "joant:mappers";
 
-
+    private JahiaOAuthConstants() {
+    }
 }

@@ -59,7 +59,6 @@ public interface JahiaOAuthService {
      * Get the OAuth configuration for the given site
      * @param siteKey the site key
      * @return the configuration
-     * @throws RepositoryException
      */
     Map<String, OAuthConnectorConfig> getOAuthConfig(String siteKey) throws RepositoryException;
 
@@ -68,9 +67,8 @@ public interface JahiaOAuthService {
      * @param config The oauth config for the connector
      * @param sessionId String user session ID to be able to identify the token on the callback the session ID of the user is added to the request
      * @return String authorization URL
-     * @throws RepositoryException
      */
-    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId) throws RepositoryException;
+    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId);
 
     /**
      * This method will get the authorization URL so a connector can display the authentication popup to the user
@@ -78,9 +76,8 @@ public interface JahiaOAuthService {
      * @param sessionId String user session ID to be able to identify the token on the callback the session ID of the user is added to the request
      * @param additionalParams additional parameter required to get the authorization URL
      * @return String authorization URL
-     * @throws RepositoryException
      */
-    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId, Map<String, String> additionalParams) throws RepositoryException;
+    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId, Map<String, String> additionalParams);
 
     /**
      * This method will extract the token and execute the mappers action

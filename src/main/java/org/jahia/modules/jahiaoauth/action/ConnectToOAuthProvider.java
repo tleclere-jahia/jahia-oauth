@@ -33,8 +33,6 @@ import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,8 +43,6 @@ import java.util.Map;
  * @author dgaillard
  */
 public class ConnectToOAuthProvider extends Action {
-    private static final Logger logger = LoggerFactory.getLogger(ConnectToOAuthProvider.class);
-
     private JahiaOAuthService jahiaOAuthService;
     private String connectorName;
     private Map<String, String> additionalParams;
@@ -59,8 +55,7 @@ public class ConnectToOAuthProvider extends Action {
         final String sessionId = req.getSession().getId();
         OAuthConnectorConfig oauthConfig = jahiaOAuthService.getOAuthConfig(renderContext.getSite().getSiteKey()).get(connectorName);
 
-        Map<String, String> additionalParams = getAdditionalParams();
-        String authorizationUrl =  jahiaOAuthService.getAuthorizationUrl(oauthConfig, sessionId, additionalParams);
+        String authorizationUrl =  jahiaOAuthService.getAuthorizationUrl(oauthConfig, sessionId, getAdditionalParams());
 
         JSONObject response = new JSONObject();
         response.put(JahiaOAuthConstants.AUTHORIZATION_URL, authorizationUrl);
