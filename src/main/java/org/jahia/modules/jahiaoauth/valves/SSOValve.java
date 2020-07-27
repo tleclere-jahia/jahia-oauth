@@ -137,9 +137,8 @@ public class SSOValve extends BaseAuthValve {
     @Nullable
     private String findUserId(Map<String, Map<String, Object>> allMapperResult) {
         for (Map<String, Object> mapperResult : allMapperResult.values()) {
-            String userId = (mapperResult.containsKey("j:email")) ? (String) ((Map<String, Object>) mapperResult.get("j:email")).get(JahiaOAuthConstants.PROPERTY_VALUE) : (String) mapperResult.get(JahiaOAuthConstants.CONNECTOR_NAME_AND_ID);
-            if (userId != null) {
-                return userId;
+            if (mapperResult.containsKey(JahiaOAuthConstants.SSO_LOGIN)) {
+                return (String) mapperResult.get(JahiaOAuthConstants.SSO_LOGIN);
             }
         }
         return null;

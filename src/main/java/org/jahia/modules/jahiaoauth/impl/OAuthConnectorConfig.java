@@ -78,6 +78,15 @@ public class OAuthConnectorConfig {
         return mappers;
     }
 
+    public MapperConfig getMapper(String name) {
+        for (MapperConfig mapper : mappers) {
+            if (mapper.getMapperName().equals(name)) {
+                return mapper;
+            }
+        }
+        return null;
+    }
+
     public void setMappers(List<MapperConfig> mappers) {
         this.mappers = mappers;
     }

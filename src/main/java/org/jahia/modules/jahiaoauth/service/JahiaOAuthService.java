@@ -43,10 +43,9 @@
  */
 package org.jahia.modules.jahiaoauth.service;
 
-import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.modules.jahiaoauth.impl.OAuthConnectorConfig;
 
 import javax.jcr.RepositoryException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,36 +54,42 @@ import java.util.Map;
  * @author dgaillard
  */
 public interface JahiaOAuthService {
+
+    /**
+     * Get the OAuth configuration for the given site
+     * @param siteKey the site key
+     * @return the configuration
+     * @throws RepositoryException
+     */
+    Map<String, OAuthConnectorConfig> getOAuthConfig(String siteKey) throws RepositoryException;
+
     /**
      * This method will get the authorization URL so a connector can display the authentication popup to the user
-     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
-     * @param connectorServiceName String the service name of the connector
+     * @param config The oauth config for the connector
      * @param sessionId String user session ID to be able to identify the token on the callback the session ID of the user is added to the request
      * @return String authorization URL
      * @throws RepositoryException
      */
-    String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId) throws RepositoryException;
+    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId) throws RepositoryException;
 
     /**
      * This method will get the authorization URL so a connector can display the authentication popup to the user
-     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
-     * @param connectorServiceName String the service name of the connector
+     * @param config The oauth config for the connector
      * @param sessionId String user session ID to be able to identify the token on the callback the session ID of the user is added to the request
      * @param additionalParams additional parameter required to get the authorization URL
      * @return String authorization URL
      * @throws RepositoryException
      */
-    String getAuthorizationUrl(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String sessionId, Map<String, String> additionalParams) throws RepositoryException;
+    String getAuthorizationUrl(OAuthConnectorConfig config, String sessionId, Map<String, String> additionalParams) throws RepositoryException;
 
     /**
      * This method will extract the token and execute the mappers action
-     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
-     * @param connectorServiceName String the service name of the connector
+     * @param config The oauth config for the connector
      * @param token String token send by the OAuth API
      * @param state String state send back by OAuth API in this context it's the user session ID
      * @throws Exception
      */
-    void extractAccessTokenAndExecuteMappers(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String token, String state) throws Exception;
+    void extractAccessTokenAndExecuteMappers(OAuthConnectorConfig config, String token, String state) throws Exception;
 
     /**
      * This method will get the mapper results in the cache
@@ -106,23 +111,21 @@ public interface JahiaOAuthService {
 
     /**
      * This method will refresh the access token of the user
-     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
-     * @param connectorServiceName String the service name of the connector
+     * @param config The oauth config for the connector
      * @param refreshToken String the refresh token
      * @return Map containing the data of the access token
      * @throws Exception
      */
-    Map<String, Object> refreshAccessToken(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String refreshToken) throws Exception;
+    Map<String, Object> refreshAccessToken(OAuthConnectorConfig config, String refreshToken) throws Exception;
 
     /**
      * This method request the user data for a given mapper and a given connector
-     * @param jahiaOAuthNode JCRNodeWrapper main node of Jahia OAuth that contains the connectors node
-     * @param connectorServiceName String the service name of the connector
+     * @param config The oauth config for the connector
      * @param mapperServiceName String the service name of the mapper
      * @param refreshToken String the refresh token
      * @return Map containing the result of the mapper
      * @throws Exception
      */
-    Map<String, Object> requestUserData(JCRNodeWrapper jahiaOAuthNode, String connectorServiceName, String mapperServiceName, String refreshToken) throws Exception;
+    Map<String, Object> requestUserData(OAuthConnectorConfig config, String mapperServiceName, String refreshToken) throws Exception;
 
 }

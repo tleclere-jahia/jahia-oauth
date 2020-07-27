@@ -68,6 +68,7 @@ public class JahiaOAuthConstants {
 
     public static final String CONNECTOR_NAME_AND_ID = "connectorNameAndID";
     public static final String STATE = "state";
+    public static final String SSO_LOGIN = "ssoLoginId";
     public static final String TOKEN_DATA = "tokenData";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String TOKEN_EXPIRES_IN = "expiresIn";
