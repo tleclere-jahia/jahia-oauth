@@ -47,7 +47,6 @@ import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.modules.jahiaoauth.service.ConnectorService;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthService;
 import org.jahia.modules.jahiaoauth.service.MapperService;
 import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -57,8 +56,7 @@ import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -69,10 +67,6 @@ import java.util.Map;
  * @author dgaillard
  */
 public class ManageMappers extends Action {
-    private static final Logger logger = LoggerFactory.getLogger(ManageMappers.class);
-
-    private JahiaOAuthService jahiaOAuthService;
-
     @Override
     public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource,
                                   JCRSessionWrapper session, Map<String, List<String>> parameters,
@@ -153,9 +147,5 @@ public class ManageMappers extends Action {
         }
 
         return new ActionResult(HttpServletResponse.SC_OK, null, response);
-    }
-
-    public void setJahiaOAuthService(JahiaOAuthService jahiaOAuthService) {
-        this.jahiaOAuthService = jahiaOAuthService;
     }
 }

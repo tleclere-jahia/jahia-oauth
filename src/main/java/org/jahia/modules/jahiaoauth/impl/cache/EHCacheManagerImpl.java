@@ -57,6 +57,7 @@ import org.jahia.services.cache.ModuleClassLoaderAwareCacheEntry;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author dgaillard
@@ -93,14 +94,29 @@ public class EHCacheManagerImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult) {
+    public void cacheMapperResults(String cacheKey, Map<String, Object> mapperResult) {
         ModuleClassLoaderAwareCacheEntry cacheEntry = new ModuleClassLoaderAwareCacheEntry(mapperResult, "jahia-oauth");
         userCache.put(new Element(cacheKey, cacheEntry));
     }
 
     @Override
-    public HashMap<String, Object> getMapperResultsCacheEntry(String cacheKey) {
-        return (HashMap<String, Object>) CacheHelper.getObjectValue(userCache, cacheKey);
+    public Map<String, Object> getMapperResultsCacheEntry(String cacheKey) {
+        return (Map<String, Object>) CacheHelper.getObjectValue(userCache, cacheKey);
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> getMapperResultsForSession(String sessionId) {
+        Map<String, Map<String, Object>> res = new HashMap<>();
+        for (String key : (List<String>) userCache.getKeys()) {
+            if (StringUtils.endsWith(key, sessionId)) {
+                String mapper = StringUtils.substringBefore(key, "_" + sessionId);
+                Map<String, Object> mapperResults = getMapperResultsCacheEntry(key);
+                if (mapperResults != null) {
+                    res.put(mapper, mapperResults);
+                }
+            }
+        }
+        return res;
     }
 
     @Override
@@ -108,7 +124,7 @@ public class EHCacheManagerImpl implements JahiaOAuthCacheService {
         for (String key : (List<String>) userCache.getKeys()) {
             if (StringUtils.endsWith(key, originalSessionId)) {
                 String newKey = StringUtils.substringBefore(key, originalSessionId) + newSessionId;
-                HashMap<String, Object> mapperResults = getMapperResultsCacheEntry(key);
+                Map<String, Object> mapperResults = getMapperResultsCacheEntry(key);
                 if (mapperResults != null) {
                     cacheMapperResults(newKey, mapperResults);
                 }

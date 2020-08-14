@@ -51,6 +51,7 @@ import org.jahia.modules.jahiaoauth.service.JahiaOAuthCacheService;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author dgaillard
@@ -66,7 +67,7 @@ public class ClusteredCacheImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public void cacheMapperResults(String cacheKey, HashMap<String, Object> mapperResult) {
+    public void cacheMapperResults(String cacheKey, Map<String, Object> mapperResult) {
         if (hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).containsKey(cacheKey)) {
             hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).replace(cacheKey, mapperResult);
         } else {
@@ -75,12 +76,26 @@ public class ClusteredCacheImpl implements JahiaOAuthCacheService {
     }
 
     @Override
-    public HashMap<String, Object> getMapperResultsCacheEntry(String cacheKey) {
-        HashMap<String, Object> mapperResult = null;
+    public Map<String, Object> getMapperResultsCacheEntry(String cacheKey) {
+        Map<String, Object> mapperResult = null;
         if (hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).containsKey(cacheKey)) {
-            mapperResult = (HashMap<String, Object>) hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).get(cacheKey);
+            mapperResult = (Map<String, Object>) hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).get(cacheKey);
         }
         return mapperResult;
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> getMapperResultsForSession(String sessionId) {
+        Map<String, Map<String, Object>> res = new HashMap<>();
+        for (Object key : hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).keySet()) {
+            String keyAsString = (String) key;
+            if (StringUtils.endsWith(keyAsString, sessionId)) {
+                String mapper = StringUtils.substringBefore(keyAsString, "_" + sessionId);
+                Map<String, Object> mapperResult = (Map<String, Object>) hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).get(key);
+                res.put(mapper, mapperResult);
+            }
+        }
+        return res;
     }
 
     @Override
@@ -89,7 +104,7 @@ public class ClusteredCacheImpl implements JahiaOAuthCacheService {
             String keyAsString = (String) key;
             if (StringUtils.endsWith(keyAsString, originalSessionId)) {
                 String newKey = StringUtils.substringBefore(keyAsString, originalSessionId) + newSessionId;
-                HashMap<String, Object> mapperResult = (HashMap<String, Object>) hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).get(key);
+                Map<String, Object> mapperResult = (Map<String, Object>) hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).get(key);
                 hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).remove(key);
                 hazelcastInstance.getMap(JahiaOAuthConstants.JAHIA_OAUTH_USER_CACHE).set(newKey, mapperResult);
             }

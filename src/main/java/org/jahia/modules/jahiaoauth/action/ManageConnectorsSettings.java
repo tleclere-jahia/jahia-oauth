@@ -47,14 +47,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.services.content.*;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRPropertyWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
@@ -67,8 +68,6 @@ import java.util.Map;
  * @author dgaillard
  */
 public class ManageConnectorsSettings extends Action {
-    private static final Logger logger = LoggerFactory.getLogger(ManageConnectorsSettings.class);
-
     @Override
     public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource,
                                   JCRSessionWrapper session, Map<String, List<String>> parameters,
@@ -118,7 +117,7 @@ public class ManageConnectorsSettings extends Action {
                 return new ActionResult(HttpServletResponse.SC_BAD_REQUEST, null, response);
             }
 
-            HashMap<String, Object> properties = new ObjectMapper().readValue(parameters.get(JahiaOAuthConstants.PROPERTIES).get(0), HashMap.class);
+            Map<String, Object> properties = new ObjectMapper().readValue(parameters.get(JahiaOAuthConstants.PROPERTIES).get(0), HashMap.class);
             if (!properties.containsKey(JahiaOAuthConstants.PROPERTY_API_KEY)
                     || !properties.containsKey(JahiaOAuthConstants.PROPERTY_API_SECRET)
                     || !properties.containsKey(JahiaOAuthConstants.PROPERTY_CALLBACK_URLS)

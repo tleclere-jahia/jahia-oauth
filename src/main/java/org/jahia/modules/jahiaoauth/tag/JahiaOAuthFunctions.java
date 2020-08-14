@@ -47,8 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.api.templates.JahiaTemplateManagerService;
 import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.exceptions.JahiaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -56,8 +54,6 @@ import java.util.List;
  * @author dgaillard
  */
 public class JahiaOAuthFunctions {
-    private static Logger logger = LoggerFactory.getLogger(JahiaOAuthFunctions.class);
-
     private static JahiaTemplateManagerService jahiaTemplateManagerService;
 
     public static Boolean isModuleActiveOnSite(String siteKey, String path) throws JahiaException {
