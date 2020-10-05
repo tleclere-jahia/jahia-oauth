@@ -66,7 +66,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * @author dgaillard
@@ -76,7 +75,6 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
 
     private Map<String, DefaultApi20> oAuthDefaultApi20Map;
     private JahiaAuthMapperService jahiaAuthMapperService;
-    private SettingsService settingsService;
 
     @Override
     public String getAuthorizationUrl(ConnectorConfig config, String sessionId) {
@@ -90,11 +88,6 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         return service.createAuthorizationUrlBuilder().state(sessionId).build();
     }
 
-    //    @Override
-//    public Map<String, Object> getMapperResults(String mapperServiceName, String sessionId) {
-//        return jahiaAuthMapperService.getMapperResultsCacheEntry(mapperServiceName + "_" + sessionId);
-//    }
-//
     @Override
     public String getResultUrl(String siteUrl, Boolean isAuthenticate) {
         return StringUtils.substringBeforeLast(siteUrl, ".html") + "/oauth-result.html?isAuthenticate=" + isAuthenticate;
@@ -239,8 +232,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
     }
 
     private OAuth20Service createOAuth20Service(ConnectorConfig config) {
-        List<String> callbackUrls = config.getListProperty(JahiaOAuthConstants.PROPERTY_CALLBACK_URLS);
-        String callbackUrl = callbackUrls.get(new Random().nextInt(callbackUrls.size()));
+        String callbackUrl = config.getProperty(JahiaOAuthConstants.PROPERTY_CALLBACK_URL);
 
         ServiceBuilder serviceBuilder = new ServiceBuilder(config.getProperty(JahiaOAuthConstants.PROPERTY_API_KEY)).apiSecret(config.getProperty(JahiaOAuthConstants.PROPERTY_API_SECRET)).callback(callbackUrl);
 
@@ -257,9 +249,5 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
 
     public void setJahiaAuthMapperService(JahiaAuthMapperService jahiaAuthMapperService) {
         this.jahiaAuthMapperService = jahiaAuthMapperService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
     }
 }
