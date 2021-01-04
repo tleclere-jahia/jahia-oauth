@@ -21,7 +21,7 @@
  *
  * ==========================================================================================
  */
-package org.jahia.modules.jahiaoauth.impl;
+package org.jahia.modules.jahiaoauth.connectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.jahia.modules.jahiaauth.service.ConnectorConfig;
@@ -35,12 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Auth linkedin connector
- * Use linkedin credentials to connect to Jahia
+ * Use Facebook credentials to connect to Jahia
  * @author dgaillard
  */
-public class LinkedInConnectorImpl implements OAuthConnectorService {
-    private static final Logger logger = LoggerFactory.getLogger(LinkedInConnectorImpl.class);
+public class FacebookConnectorImpl implements OAuthConnectorService {
+    private static final Logger logger = LoggerFactory.getLogger(FacebookConnectorImpl.class);
 
     private String protectedResourceUrl;
     private List<ConnectorPropertyInfo> availableProperties;
@@ -54,7 +53,7 @@ public class LinkedInConnectorImpl implements OAuthConnectorService {
     public String getProtectedResourceUrl(ConnectorConfig config) {
         StringBuilder propertiesAsString = new StringBuilder();
         boolean asPrevious = false;
-        for (ConnectorPropertyInfo entry: getAvailableProperties()) {
+        for (ConnectorPropertyInfo entry : getAvailableProperties()) {
             if (entry.getPropertyToRequest() == null) {
                 if (asPrevious) {
                     propertiesAsString.append(",");
@@ -75,7 +74,7 @@ public class LinkedInConnectorImpl implements OAuthConnectorService {
         if (logger.isDebugEnabled()) {
             logger.debug("Protected Resource URL = {}", protectedResourceUrl + propertiesAsString);
         }
-        return String.format(protectedResourceUrl, propertiesAsString);
+        return protectedResourceUrl + propertiesAsString;
     }
 
     @Override
@@ -98,6 +97,6 @@ public class LinkedInConnectorImpl implements OAuthConnectorService {
 
     @Override
     public void validateSettings(ConnectorConfig settings) throws IOException {
-        // Done on client side.
+        // Check done client side
     }
 }
