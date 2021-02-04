@@ -27,13 +27,18 @@ You will also need to download connectors and actions (mappers or providers) to 
 * Your users can now connect using open authentication
 
 ### AVAILABLE CONNECTORS
-* Google open authentication - It allows you to display a button `Sign in with Google` on your site
-
+#### Google open authentication 
+- It allows you to display a button `Sign in with Google` on your site
+#### LinkedIn open authentication 
+- It allows you to display a button `Sign in with LinkedIn` on your site
+#### Facebook open authentication 
+- It allows you to display a button `Sign in with Facebook` on your site
+#### GitHub open authentication 
+- It allows you to display a button `Sign in with GitHub` on your site
 ### WHAT IS A CONNECTOR?
 A connector is a module that will allow your user to connect using the open authentication API like Facebook or LinkedIn.  
 You can find connectors made by Jahia:
 * [Facebook OAuth Connector](https://github.com/Jahia/facebook-oauth-connector)
-* [LinkedIn OAuth Connector](https://github.com/Jahia/linkedin-oauth-connector)
 
 ### HOW TO MAKE YOUR OWN CONNECTOR?
 Create a connector is really easy however there is a few requirements:

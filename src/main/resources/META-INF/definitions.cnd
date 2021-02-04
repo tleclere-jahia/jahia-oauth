@@ -20,3 +20,18 @@
 
 [joant:franceConnectButton] > jnt:content, joamix:oauthButtonConnector
  - buttonColor (string, choicelist[resourceBundle]) = 'coloredBackgroundBlue' < 'backgroundWhite', 'backgroundBlue', 'coloredBackgroundWhite', 'coloredBackgroundBlue'
+
+[joant:githubOAuthView] > jnt:content, jmix:authConnectorSettingView
+
+[joant:githubButton] > jnt:content, joamix:oauthButtonConnector
+ - buttonColor (string, choicelist[resourceBundle]) = 'light' < 'light', 'dark'
+
+ [joant:linkedInOAuthView] > jnt:content, jmix:authConnectorSettingView
+
+ [joant:linkedInButton] > jnt:content, joamix:oauthButtonConnector
+  - buttonSize (string,choicelist[resourceBundle]) = 'large' < 'large', 'small'
+
+[joant:facebookOAuthView] > jnt:content, jmix:authConnectorSettingView
+
+[joant:facebookButton] > jnt:content, joamix:oauthButtonConnector
+ - buttonSize (string,choicelist[resourceBundle]) = 'large' < 'large', 'small', 'medium', 'xlarge'
