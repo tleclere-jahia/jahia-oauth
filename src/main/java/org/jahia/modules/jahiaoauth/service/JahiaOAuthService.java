@@ -118,7 +118,6 @@ public interface JahiaOAuthService {
      */
     void removeOAuthDefaultApi20(String key);
 
-
     /**
      * This method will unregister a scribe Api 2.0 by its implementation
      *

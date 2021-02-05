@@ -1,4 +1,4 @@
-/**
+/*
  * ==========================================================================================
  * =                            JAHIA'S ENTERPRISE DISTRIBUTION                             =
  * ==========================================================================================
@@ -23,50 +23,7 @@
  */
 package org.jahia.modules.jahiaoauth.connectors;
 
-import org.jahia.modules.jahiaauth.service.ConnectorConfig;
-import org.jahia.modules.jahiaauth.service.ConnectorPropertyInfo;
 import org.jahia.modules.jahiaoauth.service.OAuthConnectorService;
 
-import java.io.IOException;
-import java.util.List;
-
-/**
- * @author dgaillard
- */
-public class GoogleConnectorImpl implements OAuthConnectorService {
-    private String protectedResourceUrl;
-    private List<ConnectorPropertyInfo> availableProperties;
-
-    @Override
-    public String getProtectedResourceUrl(ConnectorConfig config) {
-        return protectedResourceUrl;
-    }
-
-    public String getProtectedResourceUrl() {
-        // Deprecated
-        return null;
-    }
-
-    @Override
-    public List<ConnectorPropertyInfo> getAvailableProperties() {
-        return availableProperties;
-    }
-
-    @Override
-    public void validateSettings(ConnectorConfig settings) throws IOException {
-        // Do nothing
-    }
-
-    public String getServiceName() {
-        // Deprecated
-        return null;
-    }
-
-    public void setProtectedResourceUrl(String protectedResourceUrl) {
-        this.protectedResourceUrl = protectedResourceUrl;
-    }
-
-    public void setAvailableProperties(List<ConnectorPropertyInfo> availableProperties) {
-        this.availableProperties = availableProperties;
-    }
+public class GoogleConnectorImpl extends Connector implements OAuthConnectorService {
 }

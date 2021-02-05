@@ -1,4 +1,4 @@
-/**
+/*
  * ==========================================================================================
  * =                            JAHIA'S ENTERPRISE DISTRIBUTION                             =
  * ==========================================================================================
@@ -50,14 +50,13 @@ public class ConnectToOAuthProvider extends Action {
     private Map<String, String> additionalParams;
 
     @Override
-    public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource,
-                                  JCRSessionWrapper session, Map<String, List<String>> parameters,
-                                  URLResolver urlResolver) throws Exception {
+    public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource, JCRSessionWrapper session,
+            Map<String, List<String>> parameters, URLResolver urlResolver) throws Exception {
 
         final String sessionId = req.getSession().getId();
         ConnectorConfig oauthConfig = settingsService.getConnectorConfig(renderContext.getSite().getSiteKey(), connectorName);
 
-        String authorizationUrl =  jahiaOAuthService.getAuthorizationUrl(oauthConfig, sessionId, getAdditionalParams());
+        String authorizationUrl = jahiaOAuthService.getAuthorizationUrl(oauthConfig, sessionId, getAdditionalParams());
 
         JSONObject response = new JSONObject();
         response.put(JahiaOAuthConstants.AUTHORIZATION_URL, authorizationUrl);
