@@ -218,7 +218,7 @@ jobs:
       - *attach-workspace
       - add_ssh_keys:
           fingerprints:
-            - "8a:f3:d8:ff:9d:05:72:4f:a8:81:49:18:f8:5b:aa:51"
+            - "22:e4:8c:a7:59:83:37:65:5a:d6:a4:41:e9:10:37:95"
       - run:
           name: Setting up github configuration
           command: |
@@ -259,7 +259,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "8a:f3:d8:ff:9d:05:72:4f:a8:81:49:18:f8:5b:aa:51"
+            - "22:e4:8c:a7:59:83:37:65:5a:d6:a4:41:e9:10:37:95"
       - run:
           name: Setting up github configuration
           command: |
