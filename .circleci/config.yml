@@ -123,9 +123,9 @@ jobs:
           name: Sonar Release branch analysis
           environment:
             DEPENDENCY_CHECK_SETTINGS: -DfailOnError=false -DskipProvidedScope=true -DskipTestScope=false -Dformats=HTML,JSON
-                -Dsonar.dependencyCheck.jsonReportPath=target/dependency-check-report.json
-                -Dsonar.dependencyCheck.htmlReportPath=target/dependency-check-report.html
-                -DretireJsAnalyzerEnabled=false -DnodeAnalyzerEnabled=false
+              -Dsonar.dependencyCheck.jsonReportPath=target/dependency-check-report.json
+              -Dsonar.dependencyCheck.htmlReportPath=target/dependency-check-report.html
+              -DretireJsAnalyzerEnabled=false -DnodeAnalyzerEnabled=false
           command: |
             if [[ ! -z "$CIRCLE_PULL_REQUEST" ]]; then
               # echo "Git custom command to fix circle-ci checkout for sonar analysis"
@@ -152,6 +152,38 @@ jobs:
           paths:
             - ~/.m2
           key: sonar-dependencies-{{ checksum "pom.xml" }}
+
+  generate-changelog:
+    <<: *workdir
+    docker: # run the steps with Docker
+      - image: cimg/node:14.15
+    resource_class: xlarge
+    steps:
+      - checkout
+      - *attach-workspace
+      - add_ssh_keys:
+          fingerprints:
+            - "22:e4:8c:a7:59:83:37:65:5a:d6:a4:41:e9:10:37:95"
+      - run:
+          name: Setting up github configuration
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git config user.email "jahia-ci@jahia.com"
+            git config user.name "Jahia CI"
+      - run:
+          name: Getting latest changes from the remote branch
+          command: |
+            git fetch --all
+            git pull origin $CIRCLE_BRANCH --quiet
+      - run:
+          name: Update Changelog
+          command: |
+            yarn
+            yarn add auto
+            GH_TOKEN=${GITHUB_API_TOKEN} yarn auto changelog
+            git push --set-upstream origin $CIRCLE_BRANCH
+      - *persist-workspace
 
   release:
     <<: *workdir
@@ -212,38 +244,6 @@ jobs:
             cp /home/circleci/source/target/*.jar /tmp/artifacts/
       - store_artifacts:
           path: /tmp/artifacts/
-
-  generate-changelog:
-    <<: *workdir
-    docker: # run the steps with Docker
-      - image: cimg/node:14.15
-    resource_class: xlarge
-    steps:
-      - checkout
-      - *attach-workspace
-      - add_ssh_keys:
-          fingerprints:
-            - "22:e4:8c:a7:59:83:37:65:5a:d6:a4:41:e9:10:37:95"
-      - run:
-          name: Setting up github configuration
-          command: |
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            git config user.email "jahia-ci@jahia.com"
-            git config user.name "Jahia CI"
-      - run:
-          name: Getting latest changes from the remote branch
-          command: |
-            git fetch --all
-            git pull origin $CIRCLE_BRANCH --quiet
-      - run:
-          name: Update Changelog
-          command: |
-            yarn
-            yarn add auto
-            GH_TOKEN=${GITHUB_API_TOKEN} yarn auto changelog
-            git push --set-upstream origin $CIRCLE_BRANCH
-      - *persist-workspace
 
   update-signature:
     <<: *workdir
@@ -397,6 +397,8 @@ workflows:
             - initialize
       - release:
           context: QA_ENVIRONMENT
+          requires:
+            - generate-changelog
       - update-signature:
           context: QA_ENVIRONMENT
           requires:
