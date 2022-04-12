@@ -84,7 +84,17 @@ public interface JahiaOAuthService {
     void addOAuthDefaultApi20(String key, DefaultApi20 oAuthDefaultApi20);
 
     /**
-     * This method will unregister a scribe Api 2.0 by its key
+     * This method will register a new Scribe Api 2.0 implementation builder
+     * It allows to dynamically build the DefaultApi20 based on the connector config.
+     * Very useful in case the DefaultApi20 need to use custom properties coming from the config for example.
+     *
+     * @param key               api key
+     * @param apiBuilder custom builder of the api connector
+     */
+    void addOAuthDefaultApi20(String key, JahiaOAuthAPIBuilder apiBuilder);
+
+    /**
+     * This method will unregister a scribe Api 2.0 by its key for each site
      *
      * @param key api key
      */

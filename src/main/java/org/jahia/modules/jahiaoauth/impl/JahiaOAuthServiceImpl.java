@@ -30,10 +30,7 @@ import org.jahia.modules.jahiaauth.service.ConnectorService;
 import org.jahia.modules.jahiaauth.service.JahiaAuthConstants;
 import org.jahia.modules.jahiaauth.service.JahiaAuthMapperService;
 import org.jahia.modules.jahiaauth.service.MapperConfig;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthConstants;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthException;
-import org.jahia.modules.jahiaoauth.service.JahiaOAuthService;
-import org.jahia.modules.jahiaoauth.service.OAuthConnectorService;
+import org.jahia.modules.jahiaoauth.service.*;
 import org.jahia.osgi.BundleUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,14 +49,14 @@ import java.util.Map;
 public class JahiaOAuthServiceImpl implements JahiaOAuthService {
     private static final Logger logger = LoggerFactory.getLogger(JahiaOAuthServiceImpl.class);
 
-    private final Map<String, DefaultApi20> oAuthDefaultApi20Map;
+    private final Map<String, JahiaOAuthAPIBuilder> oAuthDefaultApi20Map;
     private JahiaAuthMapperService jahiaAuthMapperService;
 
     public JahiaOAuthServiceImpl() {
         this.oAuthDefaultApi20Map = new HashMap<>();
     }
 
-    public JahiaOAuthServiceImpl(Map<String, DefaultApi20> oAuthDefaultApi20Map) {
+    public JahiaOAuthServiceImpl(Map<String, JahiaOAuthAPIBuilder> oAuthDefaultApi20Map) {
         this();
         if (oAuthDefaultApi20Map != null && !oAuthDefaultApi20Map.isEmpty()) {
             oAuthDefaultApi20Map.forEach(this::addOAuthDefaultApi20);
@@ -150,7 +147,9 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
                     // Check that all props are found
                     mapperConfig.getMappings().forEach(mapping -> {
                         if (!propertiesResult.containsKey(mapping.getConnectorProperty())) {
-                            logger.warn("Connector property {} mapped to jcr property {} was not found in the received properties, please check your configuration", mapping.getConnectorProperty(), mapping.getMappedProperty());
+                            logger.warn(
+                                    "Connector property {} mapped to jcr property {} was not found in the received properties, please check your configuration",
+                                    mapping.getConnectorProperty(), mapping.getMappedProperty());
                         }
                     });
                     jahiaAuthMapperService.executeMapper(state, mapperConfig, propertiesResult);
@@ -172,8 +171,8 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         tokenData.put(JahiaOAuthConstants.REFRESH_TOKEN, accessToken.getRefreshToken());
         tokenData.put(JahiaOAuthConstants.TOKEN_SCOPE, accessToken.getScope());
         tokenData.put(JahiaOAuthConstants.TOKEN_TYPE, accessToken.getTokenType());
-        if (accessToken instanceof OpenIdOAuth2AccessToken){
-            tokenData.put(JahiaOAuthConstants.OPEN_ID_TOKEN, ((OpenIdOAuth2AccessToken)accessToken).getOpenIdToken());
+        if (accessToken instanceof OpenIdOAuth2AccessToken) {
+            tokenData.put(JahiaOAuthConstants.OPEN_ID_TOKEN, ((OpenIdOAuth2AccessToken) accessToken).getOpenIdToken());
         }
         return tokenData;
     }
@@ -206,8 +205,7 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         } else {
             final String keyFromPath = StringUtils.substringBetween(entry.getValuePath(), "/");
             if (keyFromPath != null && responseJson.has(keyFromPath)) {
-                @SuppressWarnings("java:S1075")
-                String propertyPath = StringUtils.substringAfter(entry.getValuePath(), "/" + keyFromPath);
+                @SuppressWarnings("java:S1075") String propertyPath = StringUtils.substringAfter(entry.getValuePath(), "/" + keyFromPath);
                 extractPropertyFromJSONObject(propertiesResult, responseJson.getJSONObject(keyFromPath), propertyPath, entry.getName());
             }
         }
@@ -274,13 +272,22 @@ public class JahiaOAuthServiceImpl implements JahiaOAuthService {
         if (StringUtils.isNotBlank(config.getProperty(JahiaOAuthConstants.PROPERTY_SCOPE))) {
             serviceBuilder.withScope(config.getProperty(JahiaOAuthConstants.PROPERTY_SCOPE));
         }
+
         return serviceBuilder.build(oAuthDefaultApi20Map
-                .get(config.getProperty("oauthApiName") != null ? config.getProperty("oauthApiName") : config.getConnectorName()));
+                .get(config.getProperty("oauthApiName") != null ? config.getProperty("oauthApiName") : config.getConnectorName())
+                .build(config));
     }
 
     @Override
     public void addOAuthDefaultApi20(String key, DefaultApi20 oAuthDefaultApi20) {
-        oAuthDefaultApi20Map.put(key, oAuthDefaultApi20);
+        JahiaOAuthDefaultAPIBuilder api = new JahiaOAuthDefaultAPIBuilder();
+        api.setDefaultApi20(oAuthDefaultApi20);
+        oAuthDefaultApi20Map.put(key, api);
+    }
+
+    @Override
+    public void addOAuthDefaultApi20(String key, JahiaOAuthAPIBuilder apiBuilder) {
+        oAuthDefaultApi20Map.put(key, apiBuilder);
     }
 
     @Override
