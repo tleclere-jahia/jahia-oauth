@@ -1,3 +1,28 @@
+# v3.2.1 (Tue May 10 2022)
+
+#### 🐛 Bug Fix
+
+- BACKLOG-17051: fix wrong user language used to display the translatio… [#54](https://github.com/Jahia/jahia-oauth/pull/54) ([@jahia-carp](https://github.com/jahia-carp))
+- QA-13670 : register old connector if the matching service is adding a… [#53](https://github.com/Jahia/jahia-oauth/pull/53) ([@jsinovassin](https://github.com/jsinovassin) [@jkevan](https://github.com/jkevan))
+- BACKLOG-16970: add a way to post process connector connections results [#52](https://github.com/Jahia/jahia-oauth/pull/52) ([@jkevan](https://github.com/jkevan))
+- QA-14016: Expose OpenIdToken for OpenId authentication [#51](https://github.com/Jahia/jahia-oauth/pull/51) ([@faissah](https://github.com/faissah))
+- Updated config to include the latest update to the sonar job in Jahia Orb [#50](https://github.com/Jahia/jahia-oauth/pull/50) ([@Fgerthoffert](https://github.com/Fgerthoffert))
+
+#### ⚠️ Pushed to `master`
+
+- [ci skip] Updated signature for Jahia OAuth ([@jahia-ci](https://github.com/jahia-ci))
+
+#### Authors: 6
+
+- [@jahia-carp](https://github.com/jahia-carp)
+- [@jsinovassin](https://github.com/jsinovassin)
+- Fabrice A. ([@faissah](https://github.com/faissah))
+- Francois G. ([@Fgerthoffert](https://github.com/Fgerthoffert))
+- Jahia Continuous Integration account ([@jahia-ci](https://github.com/jahia-ci))
+- kevan Jahanshahi ([@jkevan](https://github.com/jkevan))
+
+---
+
 # v1.3.1 (Thu Mar 25 2021)
 
 #### 🐛 Bug Fix
