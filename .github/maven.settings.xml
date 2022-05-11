@@ -25,28 +25,6 @@
                         <updatePolicy>always</updatePolicy>
                     </snapshots>
                 </repository>
-                <repository>
-                    <id>jahia-public</id>
-                    <name>Jahia Public Repository</name>
-                    <url>https://devtools.jahia.com/nexus/content/groups/public</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>never</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>jahia-enterprise-releases</id>
-                    <name>Jahia Enterprise releases</name>
-                    <url>https://devtools.jahia.com/nexus/content/repositories/marketing-factory-releases</url>
-                </repository>
-                <repository>
-                    <id>jahia-enterprise-snapshots</id>
-                    <name>Jahia Enterprise snapshots</name>
-                    <url>https://devtools.jahia.com/nexus/content/repositories/marketing-factory-snapshots</url>
-                </repository>
             </repositories>
         </profile>
         <profile>
@@ -67,17 +45,27 @@
 
     <servers>
         <server>
-            <id>jahia-enterprise-releases</id>
+            <id>jahia-enterprise</id>
             <username>${env.NEXUS_USERNAME}</username>
             <password>${env.NEXUS_PASSWORD}</password>
         </server>
         <server>
-            <id>jahia-enterprise-snapshots</id>
+            <id>jahia-snapshots</id>
             <username>${env.NEXUS_USERNAME}</username>
             <password>${env.NEXUS_PASSWORD}</password>
         </server>
         <server>
             <id>jahia-internal</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+        <server>
+            <id>oauth-snapshots</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+        <server>
+            <id>oauth-releases</id>
             <username>${env.NEXUS_USERNAME}</username>
             <password>${env.NEXUS_PASSWORD}</password>
         </server>
