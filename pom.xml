@@ -49,6 +49,17 @@
         <jahia.modules.importPackage>!com.hazelcast.config,!com.hazelcast.core</jahia.modules.importPackage>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>oauth-releases</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>oauth-snapshots</id>
+            <url>https://devtools.jahia.com/nexus/content/repositories/oauth-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>jahia-public</id>
@@ -116,7 +127,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>jahia-authentication</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.7.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
